@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 
 char* defaultName = "myfile.out";
 
@@ -76,4 +78,5 @@ int main(int argc, char* argv[1]){
 
 	fclose(output);
 
+	return 0;
 }
