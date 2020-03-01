@@ -34,7 +34,7 @@ void processTree(){
   int child_num;
   child = fork();
   gchild = fork();
-    if(child<0){
+    if(child<0 && gchild <0){
     //error
 
     }else if(child>0 && gchild>0){
