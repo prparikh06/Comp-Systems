@@ -20,10 +20,16 @@ int main(int argc, char *argv[]) {
 
 	int max = 0;
 	int num;
+	int count = 0;
 	while( fscanf(fp,"%d \n", &num) == 1) {
 		
+		if (num == -50)
+		{
+			printf("Found hidden key at index: %d\n", count);
+		}
 		if(num > max)
 			max = num;
+		count++;
 	}
 	
 	printf("MAX: %d \n",max);
