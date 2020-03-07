@@ -1,8 +1,0 @@
-Child Process: D, returns: 0, pid: 24154, ppid: 24152
-Child Proces: C, returns: 0, pid: 24153, ppid: 24151
-Child waiting for child to terminate
-Grandchild terminated
-Child Process: B, returns: 0, pid: 24152 ppid: 24151
-Parent waiting for child to terminate
-Child 1 terminated
-Parent Process: A, returns: 0, pid: 24151, ppid: 23195
