@@ -65,7 +65,7 @@ int getMax(int curDepth, int depth, int nchild, int *uniqueIDs, int dataSectionS
 			if (shmp->buf[i] == secretElement)
 			{
 				FILE *outpt = fopen(strcat(outputPath,".tmp"), "a");
-				fprintf(outpt, "Hi I'm process %d and I found the hidden key in position %d. \n", getpid(), i);
+				fprintf(outpt, "Hi I'm process %d and I found the hidden key in position A[%d]. \n", getpid(), i);
 				fclose(outpt);
 			}
 		}
