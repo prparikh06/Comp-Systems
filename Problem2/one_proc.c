@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 		
 		if (num == -50)
 		{
-			printf("Found hidden key at index: %d\n", count);
+			printf("I'm process 1 and I found hidden key at index: %d\n", count);
 		}
 		if(num > max)
 		{
