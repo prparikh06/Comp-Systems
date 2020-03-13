@@ -14,65 +14,58 @@ struct shmseg
         int buf[BUFF_SIZE];                     //4 megabytes (×_×#)
 };
 
-int *makeIndexArray(int n)
-{
-        int *ret = malloc(sizeof(int)*n);
-        int i;
-        for (i = 0; i < n; i++)
-        {
-                ret[i] = i;
-        }
-        return ret;
-}
-int *getUniqueSubArrForChild(int arr[], int curChild, int size)
-{
-        int *ret = malloc(sizeof(int)*size);
-        int start = curChild*size;
-        int i;
-        for (i = start; i < start+size; i++)
-        {
-                ret[i-start] = arr[i];
-        }
-        return ret;
-}
 
 
-int getMax(int nChild, int *uniqueIDs, int dataSectionSize, int shmid){
+int getMax(int procNum, int nChild, int dataSectionSize, int shmid){
 
 	//pip for each child
-	int p[2*nchild];
-	int a;
+	int p[2];
+	if(pipe(&p[2]) < 0)
+		exit(1);
+
+	int max=-1;	
+	int pid=fork();
 	
-	for(a=0;a<nchild;a++){
-		if(pipe(&ap[2*a]) < 0)
-			exit(1);
+	
+	
+	if(pid == 0) { //child
+		procNum = procNum+1;
+		printf("Hi I'm process %d and my parent is %d. \n",getpid(),getppid());
+		
+		if(procNum<nChild){
+			 max = getMax(procNum,nChild,dataSectionSize,shmid);
+		}
+		struct shmseg *shmp = shmat(shmid,NULL,0);
+		int i;
+		for(i=procNum*dataSectionSize;i<procNum*dataSectionSize+dataSectionSize;i++){
+			
+			max = (int) (shmp->buf[i] > max)? shmp->buf[i]:max;
+		}
+		shmdt(shmp);
+		close(p[0]);
+                write(p[1], &max, sizeof(int)); // pipe up max
+                close(p[1]);
+                exit(0);
 	}
 
-	int i;
-	int max=-1;
-	
-	for(i=0;i<nchild;i++){
-
-		int *subarr = getUniqueSubArrForChild(uniqueIDs,i,2);
-		int pid=fork();
-
-		if(pid == 0) { //child
-		
-			printf("Hi I'm process %d and my parent is %d. \n",getpid(),getppid());
-			int max = getMax(nchild,subarr,dataSectionSize,shmid);
-			close(p[2*i]);
-                        write(p[2*i + 1], &max, sizeof(int)); // pipe up max
-                        close(p[2*i + 1]);
-                        exit(0);
-
-		}
-
 		else if (pid > 0) {
+			printf("Hi I'm process %d and my parent is %d. \n",getpid(),getppid());
+			struct shmseg *shmp = shmat(shmid,NULL,0);
+			int i;
+			for(i =0;i<dataSectionSize;i++){
+				max = (int) (shmp->buf[i] > max) ? shmp->buf[i] : max;
+			}
+			shmdt(shmp);
 			int recvPID = wait(NULL);
 			int recv;
+			close(p[1]);
+			read(p[0],&recv,sizeof(int));
+			close(p[0]);
+			
+			max = (recv>max)?recv:max;
 		
-
-	return 0;
+		}
+	return max;
 }
 
 
@@ -109,13 +102,11 @@ int main (int argc, char *argv[]){
         }
         /***************************************/
 
-        int numLeafProc = (int) nchild;
-        int dataSizePerProc = (shmp->actual_length) / numLeafProc;
+        int dataSizePerProc = (shmp->actual_length) / nChild;
 
         shmdt(shmp);
 
-        int *uniqueIDs = makeIndexArray(numLeafProc);
-        int max = getMax(0, nchild, uniqueIDs, dataSizePerProc, shmid);
+        int max = getMax(0, nChild, dataSizePerProc, shmid);
         printf("Final max is:  %d.\n", max);
 
 
