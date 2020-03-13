@@ -112,6 +112,12 @@ int getMax(int curDepth, int depth, int nchild, int *uniqueIDs, int dataSectionS
 
 int main(int argvc, char *argv[])
 {
+	if (strcmp(argv[1], "-h")==0)
+	{
+		printf("\n\nUSAGE:\n./a.out depth numChildren inputFile outputFile\n\n");
+		return 0;
+	}
+	
 	int depth = atoi(argv[1]);
 	int nchild = atoi(argv[2]);
 	char* fileName = argv[3];
