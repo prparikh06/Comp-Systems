@@ -36,7 +36,7 @@ int *getUniqueSubArrForChild(int arr[], int curChild, int size)
 	return ret;
 }
 
-int getMax(int curDepth, int depth, int nchild, int *uniqueIDs, int dataSectionSize, int shmid)
+int getMax(int curDepth, int depth, int nchild, int *uniqueIDs, int dataSectionSize, int shmid, char *outputPath, int secretElement)
 {
 	// Make a pipe for each child
 	int p[2*nchild];
@@ -61,6 +61,13 @@ int getMax(int curDepth, int depth, int nchild, int *uniqueIDs, int dataSectionS
 		for (i = dataStartIndex; i < end; i++)
 		{
 			max = (int) (shmp->buf[i] > max) ? shmp->buf[i] : max;
+			
+			if (shmp->buf[i] == secretElement)
+			{
+				FILE *outpt = fopen(strcat(outputPath,".tmp"), "a");
+				fprintf(outpt, "Hi I'm process %d and I found the hidden key in position A[%d]. \n", getpid(), i);
+				fclose(outpt);
+			}
 		}
 	
 		shmdt(shmp);
@@ -75,12 +82,18 @@ int getMax(int curDepth, int depth, int nchild, int *uniqueIDs, int dataSectionS
 		int pid = fork();
 		if (pid == 0)
 		{
-			printf("Hi I'm process %d and my parent is %d. \n", getpid(), getppid());
-			int max = getMax(++curDepth, depth, nchild, subarr, dataSectionSize, shmid);
+			FILE *outp = fopen(outputPath, "a");
+			fprintf(outp, "Hi I'm process %d and my parent is %d. \n", getpid(), getppid());
+			fclose(outp);
+			
+			int max = getMax(++curDepth, depth, nchild, subarr, dataSectionSize, shmid, outputPath, secretElement);
 			
 			close(p[2*i]);
 			write(p[2*i + 1], &max, sizeof(int)); // pipe up max
 			close(p[2*i + 1]);
+
+			
+			free(subarr);
 			exit(0);
 		}
 		else if (pid > 0)
@@ -90,7 +103,6 @@ int getMax(int curDepth, int depth, int nchild, int *uniqueIDs, int dataSectionS
 			close(p[2*i + 1]);
 			read(p[2*i], &recv, sizeof(int));		// recv max from child
 			close(p[2*i]);
-			 //printf("Received max %d from my child, %d.\n", recv, recvPID);
 			max = (recv>max)?recv:max;
 		}
 	}
@@ -100,9 +112,16 @@ int getMax(int curDepth, int depth, int nchild, int *uniqueIDs, int dataSectionS
 
 int main(int argvc, char *argv[])
 {
+	if (strcmp(argv[1], "-h")==0)
+	{
+		printf("\n\nUSAGE:\n./a.out depth numChildren inputFile outputFile\n\n");
+		return 0;
+	}
+	
 	int depth = atoi(argv[1]);
 	int nchild = atoi(argv[2]);
 	char* fileName = argv[3];
+	char* outputPath = argv[4];
 	
 	FILE *fp = fopen(fileName,"r");
 
@@ -135,9 +154,27 @@ int main(int argvc, char *argv[])
 	shmdt(shmp);
 	
 	int *uniqueIDs = makeIndexArray(numLeafProc);
-	int max = getMax(0, depth, nchild, uniqueIDs, dataSizePerProc, shmid);
-	printf("Final max is:  %d.\n", max);
+	int max = getMax(0, depth, nchild, uniqueIDs, dataSizePerProc, shmid, outputPath, -50);
+	free(uniqueIDs);
 	
+	FILE *outp = fopen(outputPath, "a");
+	fprintf(outp, "Max=%d\n", max);
+	
+	char *tempPath = strcat(outputPath,".tmp");
+	// Formating our output correctly
+	FILE *outpt = fopen(tempPath, "r");
+	char c;
+	fprintf(outp, "\n");
+	while (c=fgetc(outpt))
+	{
+		if (c == EOF) break;
+		fprintf(outp, "%c", c);
+	}
+
+	fclose(outpt);
+	fclose(outp);
+	
+	remove(tempPath);
 	
 	return 0;
 }
