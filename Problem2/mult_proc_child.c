@@ -32,7 +32,7 @@ int getMax(int procNum, int nChild, int dataSectionSize, int shmid){
 		procNum = procNum+1;
 		printf("Hi I'm process %d and my parent is %d. \n",getpid(),getppid());
 		
-		if(procNum<nChild){
+		if(procNum<=nChild){
 			 max = getMax(procNum,nChild,dataSectionSize,shmid);
 		}
 		struct shmseg *shmp = shmat(shmid,NULL,0);
@@ -42,14 +42,17 @@ int getMax(int procNum, int nChild, int dataSectionSize, int shmid){
 			max = (int) (shmp->buf[i] > max)? shmp->buf[i]:max;
 		}
 		shmdt(shmp);
+		int recvPID = wait(NULL);
+		int recv;
+		read(p[0],&recv,sizeof(int));
+		max = (p[0]>max)?p[0]:max;
 		close(p[0]);
                 write(p[1], &max, sizeof(int)); // pipe up max
                 close(p[1]);
-                exit(0);
+		exit(0);
 	}
 
 		else if (pid > 0) {
-			printf("Hi I'm process %d and my parent is %d. \n",getpid(),getppid());
 			struct shmseg *shmp = shmat(shmid,NULL,0);
 			int i;
 			for(i =0;i<dataSectionSize;i++){
