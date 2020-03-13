@@ -3,21 +3,106 @@
 #include <string.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <math.h>
 
-
-#define NCHILD 5
-#define BUFF_SIZE 1000000			//4 megabytes (×_×#)
+#define BUFF_SIZE 1000000
 
 
 struct shmseg
 {
 	int actual_length;
-	int buf[BUFF_SIZE];
+	int buf[BUFF_SIZE];			//4 megabytes (×_×#)
 };
+
+int *makeIndexArray(int n)
+{
+	int *ret = malloc(sizeof(int)*n);
+	int i;
+	for (i = 0; i < n; i++)
+	{
+		ret[i] = i;
+	}
+	return ret;
+}
+int *getUniqueSubArrForChild(int arr[], int curChild, int size)
+{
+	int *ret = malloc(sizeof(int)*size);
+	int start = curChild*size;
+	int i;
+	for (i = start; i < start+size; i++)
+	{
+		ret[i-start] = arr[i];
+	}
+	return ret;
+}
+
+int getMax(int curDepth, int depth, int nchild, int *uniqueIDs, int dataSectionSize, int shmid)
+{
+	// Make a pipe for each child
+	int p[2*nchild];
+	int a;
+	for (a = 0; a < nchild; a++)
+	{
+		if (pipe(&p[2*a]) < 0)
+			exit(1);
+	}
+	
+	if (curDepth == depth)
+	{
+		
+		int dataStartIndex = uniqueIDs[0]*dataSectionSize;
+		struct shmseg *shmp = shmat(shmid, NULL, 0);
+		
+		// find max for my section in data
+		int max = -1;
+		int end = (shmp->actual_length < dataStartIndex+dataSectionSize) ? shmp->actual_length : dataStartIndex+dataSectionSize;
+		
+		int i;
+		for (i = dataStartIndex; i < end; i++)
+		{
+			max = (int) (shmp->buf[i] > max) ? shmp->buf[i] : max;
+		}
+	
+		shmdt(shmp);
+		return max;
+	}
+	
+	int i;
+	int max = -1;
+	for (i = 0; i < nchild; i++)
+	{
+		int *subarr = getUniqueSubArrForChild(uniqueIDs, i, (int)pow(nchild, (depth-(curDepth+1))));
+		int pid = fork();
+		if (pid == 0)
+		{
+			printf("Hi I'm process %d and my parent is %d. \n", getpid(), getppid());
+			int max = getMax(++curDepth, depth, nchild, subarr, dataSectionSize, shmid);
+			
+			close(p[2*i]);
+			write(p[2*i + 1], &max, sizeof(int)); // pipe up max
+			close(p[2*i + 1]);
+			exit(0);
+		}
+		else if (pid > 0)
+		{
+			int recvPID = wait(NULL);
+			int recv;
+			close(p[2*i + 1]);
+			read(p[2*i], &recv, sizeof(int));		// recv max from child
+			close(p[2*i]);
+			 //printf("Received max %d from my child, %d.\n", recv, recvPID);
+			max = (recv>max)?recv:max;
+		}
+	}
+	return max;
+}
+
 
 int main(int argvc, char *argv[])
 {
-	char* fileName = argv[1];
+	int depth = atoi(argv[1]);
+	int nchild = atoi(argv[2]);
+	char* fileName = argv[3];
 	
 	FILE *fp = fopen(fileName,"r");
 
@@ -28,11 +113,11 @@ int main(int argvc, char *argv[])
 	
 	/** Create Shared Memory **/
 	struct shmseg *shmp;
-	//shmp->buf = malloc(BUFF_SIZE*sizeof(int));
 	int shmid = shmget(IPC_PRIVATE, sizeof(struct shmseg), IPC_CREAT | 0777);		// Memory segment ID
 	shmp = shmat(shmid, NULL, 0);		// Shared memory address, Attach shared memory segment to address space
 	/**************************/
 	
+	/** Copy data file into shared memory **/
 	int num;
 	int *bufptr = shmp->buf;
 	int count = 0;
@@ -42,25 +127,17 @@ int main(int argvc, char *argv[])
 		shmp->actual_length = count;
 		bufptr++;
 	}
+	/***************************************/
+
+	int numLeafProc = (int) pow(nchild, depth);
+	int dataSizePerProc = (shmp->actual_length) / numLeafProc;
 	
-	shmdt(shmp);		// Detach from memory segment
+	shmdt(shmp);
 	
-	int pid = fork();
-	if (pid == 0)
-	{
-		shmp = shmat(shmid, NULL, 0);
-		int i;
-		for (i = 0; i < shmp->actual_length; i++)
-		{
-			printf("%d\n", shmp->buf[i]);
-		}
-		
-		shmdt(shmp);		// Detach from memory segment
-	}
-	else if (pid > 0)
-	{
-		wait();
-	}
+	int *uniqueIDs = makeIndexArray(numLeafProc);
+	int max = getMax(0, depth, nchild, uniqueIDs, dataSizePerProc, shmid);
+	printf("Final max is:  %d.\n", max);
+	
 	
 	return 0;
 }

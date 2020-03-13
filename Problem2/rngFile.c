@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 	// random numbers on every program run  
 	// going to run it for 1 mill, 100k, 10k, 1k random numbers and output them to textfiles
 	
-     	FILE *fp;
+    FILE *fp;
 	
 	int numItems = lazyNumItems(argv[1]);//atoi(argv[1]);
 		
