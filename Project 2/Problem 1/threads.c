@@ -9,6 +9,7 @@ pthread_t threads[];
 int global_index = 0;
 
 void* thread_serach(void* args){
+    printf("thread %d is searching starting at global index %d\n", pthread_self(), global_index);
     int* array = (int*) args;
     int i, n, max;
     n = sizeof(array)/sizeof(int); //can't guarantee that all array sizes will be same right (if our num workers doesnt divide)
@@ -23,6 +24,8 @@ void* thread_serach(void* args){
         global_index++;
 
     }
+    int* return_vals = (int*) malloc(sizeof(int) * 2);
+    
 
 
 }
@@ -68,7 +71,7 @@ int main(int argc, char* argv[]){
         int* return_vals = (int*) malloc(sizeof(int) * 2);
         //RETURN VALUES: [max, index of hidden key (if not found, do -1)]
         pthread_join(threads[i], (void*) &return_vals);
-        printf("thread %d has return values of %d, and %d\n", (int) return_vals[0], (int) return_vals[1]);
+        printf("thread %d has return values of %d, and %d\n", threads[i],(int) return_vals[0], (int) return_vals[1]);
     }
 
 }
