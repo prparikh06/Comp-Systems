@@ -7,36 +7,46 @@
 int mini_array_size;
 pthread_t* threads;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-int keys_found; 
+int keys_found = 0; 
+
 void* thread_serach(void* args){
-    
+
     pthread_mutex_lock(&mutex);
 
+    if (keys_found == 3){
+        pthread_exit(NULL);
+    }
+
+    //printf("keys found currently: %d\n", keys_found);
     int* array = (int*) args;
     int i, j, n, found_key = -1;
     n = array[0]; //can't guarantee that all array sizes will be same  (if our num workers doesnt divide)
     j = array[1]; //starting index will help us keep track where the hidden keys are
     
+
+    
     //printf("size of mini array: %d\n", n);
     for (i = 2; i < n+2; i++, j++){ //n+2 because we need to account for the first 2 extra elements
-       
+        
         if (array[i] == -50){ //hidden key found
-            printf("hidden key found at %d!\n", j);
+            //printf("hidden key found at %d!\n", j);
             found_key = j;
             keys_found++;
         }
     }
 
-    pthread_mutex_unlock(&mutex);
     
-    int* return_vals = (int*) malloc(sizeof(int) );
+
+    int* return_vals = (int*) malloc(sizeof(int));
     return_vals[0] = found_key;
+    pthread_mutex_unlock(&mutex);
+
     //printf("found key result = %d\n", found_key);
+    free(array);
     return (void*) return_vals;
 }
 
 int main(int argc, char* argv[]){ 
-    keys_found = 0;
     //if argc, that's how many threads 
     struct timeval start,end;
     int size = 20, piece_size = 10; //TODO THIS WILL CHANGE
@@ -63,9 +73,11 @@ int main(int argc, char* argv[]){
 
     //start timing
     gettimeofday(&start,NULL);
-    
+
     for (i = 0, k = 0; k < numWorkers; i+=j-2, k++){  //this is a little OD but it's fine
-        pthread_t curr_thread;
+        pthread_t curr_thread;        
+
+    
 
         //create mini array
         int* mini_array = (int*) malloc(sizeof(int) * (mini_array_size + 2)); //adding 2 in order to add size and starting index
@@ -81,21 +93,23 @@ int main(int argc, char* argv[]){
         //mini array done, time to thread
         pthread_create(&curr_thread, NULL, thread_serach, (void*) mini_array);
         threads[k] = curr_thread;
-        free(mini_array);
-    }
-    //join and get absolute max
-    for (i = 0; i < numWorkers; i++){
         
-        //check if all keys have already been found //TODO here or in prev loop?
-        if (keys_found == 3){
-            break;
-        }
-
+    }
+    //join 
+    int found = 0;
+    for (i = 0; i < numWorkers; i++){
         //join and get return vals        
         int* return_vals = (int*) malloc(sizeof(int));
         pthread_join(threads[i], (void*) &return_vals);
+      
+        if (found == 3 && return_vals == NULL) break;
+        else if (return_vals == NULL ){
+            continue;
+        }
         int key_index = (int) return_vals[0];
-        printf("thread %u has key index %d\n", &threads[i], (int) return_vals[0]); 
+        if (key_index == -1) continue;
+        found++;
+        printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[0]); 
         
     }
 

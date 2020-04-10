@@ -9,6 +9,7 @@ pthread_t* threads;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void* thread_serach(void* args){
+   
     pthread_mutex_lock(&mutex);
 
     int* array = (int*) args;
@@ -21,7 +22,7 @@ void* thread_serach(void* args){
         if (array[i] > max)
             max = array[i];
         if (array[i] == -50){ //hidden key found
-            printf("hidden key found at %d!\n", j);
+            //printf("hidden key found at %d!\n", j);
             found_key = j;
         }
     }
@@ -31,15 +32,15 @@ void* thread_serach(void* args){
     return_vals[0] = max;
     //printf("found key result = %d\n", found_key);
     return_vals[1] = found_key;
+    free(array);
     return (void*) return_vals;
 }
 
 int main(int argc, char* argv[]){ 
-    //global_index = 0;
     //if argc, that's how many threads 
     
     struct timeval start,end;
-    int size = 20, piece_size = 10; //TODO THIS WILL CHANGE
+    int size = 30, piece_size = 10; //TODO THIS WILL CHANGE
 
     int numWorkers, i,j,k,n;
     FILE* fp = fopen("test.txt",  "r"); //TODO this will change
@@ -47,7 +48,7 @@ int main(int argc, char* argv[]){
 
     if (argc > 1){
         numWorkers = atoi(argv[1]);
-        if (numWorkers > size) numWorkers = 20;
+        if (numWorkers > size) numWorkers = size;
         for (i = 0; i < numWorkers; i++){
             //create threads 
             mini_array_size = ceil((double)size/numWorkers); 
@@ -90,7 +91,10 @@ int main(int argc, char* argv[]){
 
         pthread_join(threads[i], (void*) &return_vals);
         maximums[i] = (int) return_vals[0];
-        printf("thread %u has return values of %d, and %d\n", &threads[i], (int) return_vals[0], (int) return_vals[1]); 
+        //printf("thread %u has return values of %d, and %d\n", &threads[i], (int) return_vals[0], (int) return_vals[1]); 
+        if (return_vals[1] != -1){ //key has been found
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], return_vals[1]);
+        }
         if (maximums[i] > finalMax){
             finalMax = maximums[i];
             max_threadID = &threads[i];
@@ -102,7 +106,8 @@ int main(int argc, char* argv[]){
     //end timing
     gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-    printf("The final maximum is %d, discovered by thread %u\ntime of execution: %f usec\n", finalMax, max_threadID, runTime);
+    printf("Hi I am Pthread %u and I found the maximum value %d\n", max_threadID, finalMax);
+    //printf("Time of execution: %f usec\n", runTime);
 
     
 
