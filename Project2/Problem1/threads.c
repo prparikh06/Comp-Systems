@@ -105,9 +105,11 @@ int main(int argc, char* argv[]) {
         
         // printf("ret values: %d %d %d \n", (int) return_vals[0], (int) return_vals[1], (int) return_vals[2]);
         int currMax = (int) return_vals[0];
+        
         if (return_vals[2] != -1){ //key has been found
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], return_vals[2]);
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[2]);
         }
+
         if (currMax > finalMax){
             finalMax = currMax;
             finalMax_index =  (int) return_vals[1];          

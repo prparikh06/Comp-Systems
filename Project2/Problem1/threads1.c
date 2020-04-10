@@ -11,11 +11,13 @@ int keys_found = 0;
 
 void* thread_serach(void* args){
 
-    pthread_mutex_lock(&mutex);
-
-    if (keys_found == 3){
+   if (keys_found == 3){
         pthread_exit(NULL);
     }
+
+    pthread_mutex_lock(&mutex);
+
+    
 
     //printf("keys found currently: %d\n", keys_found);
     int* array = (int*) args;
@@ -27,7 +29,7 @@ void* thread_serach(void* args){
     
     //printf("size of mini array: %d\n", n);
     for (i = 2; i < n+2; i++, j++){ //n+2 because we need to account for the first 2 extra elements
-        
+        if (keys_found == 3) break;
         if (array[i] == -50){ //hidden key found
             //printf("hidden key found at %d!\n", j);
             found_key = j;
@@ -35,29 +37,28 @@ void* thread_serach(void* args){
         }
     }
 
-    
+        
 
-    int* return_vals = (int*) malloc(sizeof(int));
-    return_vals[0] = found_key;
+
+    int* ret = (int*) found_key;
     pthread_mutex_unlock(&mutex);
-
     //printf("found key result = %d\n", found_key);
     free(array);
-    return (void*) return_vals;
+    return (void*) ret;
 }
 
 int main(int argc, char* argv[]){ 
     //if argc, that's how many threads 
     struct timeval start,end;
-    int size = 20, piece_size = 10; //TODO THIS WILL CHANGE
+    int size = 1000, piece_size = 10; //TODO THIS WILL CHANGE
 
     int numWorkers, i,j,k,n;
-    FILE* fp = fopen("test.txt",  "r"); //TODO THIS WILL CHANGE
+    FILE* fp = fopen("1k_items.txt",  "r"); //TODO THIS WILL CHANGE
     if (fp == NULL) return -1;
 
     if (argc > 1){
         numWorkers = atoi(argv[1]);
-        if (numWorkers > size) numWorkers = 20;
+        if (numWorkers > size) numWorkers = size;
         for (i = 0; i < numWorkers; i++){
             //create threads 
             mini_array_size = ceil((double)size/numWorkers); 
@@ -76,8 +77,6 @@ int main(int argc, char* argv[]){
 
     for (i = 0, k = 0; k < numWorkers; i+=j-2, k++){  //this is a little OD but it's fine
         pthread_t curr_thread;        
-
-    
 
         //create mini array
         int* mini_array = (int*) malloc(sizeof(int) * (mini_array_size + 2)); //adding 2 in order to add size and starting index
@@ -98,18 +97,25 @@ int main(int argc, char* argv[]){
     //join 
     int found = 0;
     for (i = 0; i < numWorkers; i++){
-        //join and get return vals        
-        int* return_vals = (int*) malloc(sizeof(int));
-        pthread_join(threads[i], (void*) &return_vals);
-      
-        if (found == 3 && return_vals == NULL) break;
-        else if (return_vals == NULL ){
-            continue;
+        
+        //join and get return val     
+        int ret; 
+        
+        pthread_join(threads[i], (void*)&ret);
+        
+        if(ret != NULL && ret!= -1){
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret); 
+            found++;
+            
         }
-        int key_index = (int) return_vals[0];
-        if (key_index == -1) continue;
-        found++;
-        printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[0]); 
+        if(found == 3){
+            printf("we found em all. should be done \n");
+            break;
+        }
+        // else {
+        //     printf("here\n");
+        //     continue;
+        // }
         
     }
 
@@ -118,7 +124,7 @@ int main(int argc, char* argv[]){
     //end timing
     gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-    printf("time of execution: %f usec\n", runTime);
+    //printf("time of execution: %f usec\n", runTime);
 
     
 
