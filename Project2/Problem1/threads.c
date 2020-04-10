@@ -13,17 +13,18 @@ void* thread_serach(void* args){
     pthread_mutex_lock(&mutex);
 
     int* array = (int*) args;
-    int i, n, max, found_key = -1;
-    n = array[0]; //can't guarantee that all array sizes will be same right (if our num workers doesnt divide)
+    int i, j, n, max, found_key = -1;
+    n = array[0]; //can't guarantee that all array sizes will be same  (if our num workers doesnt divide)
+    j = array[1]; //starting index will help us keep track where the hidden keys are
     max = -1;
     //printf("size of mini array: %d\n", n);
-    global_index++;
-    for (i = 1; i < n; i++, global_index++){
+    // global_index++;
+    for (i = 2; i < n; i++, j++){
         if (array[i] > max)
             max = array[i];
         if (array[i] == -50){ //hidden key found
-            printf("hidden key found at %d!\n", global_index);
-            found_key = global_index;
+            printf("hidden key found at %d!\n", j);
+            found_key = j;
         }
 
     }
@@ -39,7 +40,10 @@ void* thread_serach(void* args){
 int main(int argc, char* argv[]){ 
     //global_index = 0;
     //if argc, that's how many threads 
-    int numWorkers, i,j,n;
+
+    int size = 20; //TODO THIS WILL CHANGE
+
+    int numWorkers, i,j,k,n;
     FILE* fp = fopen("test.txt",  "r"); //TODO this will change
     if (fp == NULL) return -1;
 
@@ -47,14 +51,14 @@ int main(int argc, char* argv[]){
         numWorkers = atoi(argv[1]);
         for (i = 0; i < numWorkers; i++){
             //create threads 
-            mini_array_size = ceil(20.00/numWorkers); //TODO this will change
+            mini_array_size = ceil(double(size)/numWorkers); 
 
         }
     }
 
     else{
         //call recursively for pieces of 10
-        numWorkers = 20/10; //TODO this will change
+        numWorkers = size/10; 
         mini_array_size = 10;
     }
     
@@ -62,23 +66,23 @@ int main(int argc, char* argv[]){
     int maximums[numWorkers];
     int finalMax = -1, max_threadID = 0;
 
-    for (i = 0; i < numWorkers; i++){ 
+    for (i = 0, j = 0, k = 0; i < size, k < numWorkers; i+=j, k++){  //this is a little OD but it's fine
 
         pthread_t curr_thread;
         //create mini array
-        int* mini_array = (int*) malloc(sizeof(int) * (mini_array_size) + 1); //adding 1 in order to add size and starting index
+        int* mini_array = (int*) malloc(sizeof(int) * (mini_array_size) + 2); //adding 2 in order to add size and starting index
         
-        for (j = 0; j < mini_array_size; j++){
+        for (j = 2; j < mini_array_size; j++){
             if (fscanf(fp,"%d\n", &n) == EOF) break;
             //printf("adding item %d to mini array\n", n);
             mini_array[j] = n;
         }
-
-        mini_array[0] = j;
+        mini_array[0] = j; //size of array
+        mini_array[1] = i; //starting index
 
         //mini array done, time to thread
         pthread_create(&curr_thread, NULL, thread_serach, (void*) mini_array);
-        threads[i] = curr_thread;
+        threads[k] = curr_thread;
         
     }
     //join and get absolute max
