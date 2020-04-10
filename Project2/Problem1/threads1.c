@@ -50,12 +50,10 @@ void* thread_serach(void* args){
 int main(int argc, char* argv[]){ 
     //if argc, that's how many threads 
     struct timeval start,end;
-    int size = atoi(argv[2]), piece_size =  200; //TODO THIS WILL CHANGE
+    int size = 1000, piece_size =  200; //TODO THIS WILL CHANGE
 
     int numWorkers, i,j,k,n;
-    //FILE* fp = fopen("1k_items.txt",  "r"); //TODO THIS WILL CHANGE
-    FILE* fp = fopen(argv[3], "r");
-
+    FILE* fp = fopen("1k_items.txt",  "r"); //TODO THIS WILL CHANGE
     if (fp == NULL) return -1;
 
     if (argc > 1){
@@ -122,7 +120,7 @@ int main(int argc, char* argv[]){
     //end timing
     gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-    //printf("Time of execution to check %s items with %d threads: %f usec\n", argv[4], numWorkers, runTime);
+    //printf("Time of execution to check %s items with %d threads: %f usec\n", "1k", numWorkers, runTime); //TODO this will change
 
     
 

@@ -46,11 +46,10 @@ void* thread_serach(void* args){
 int main(int argc, char* argv[]) { 
     //if argc, that's how many  threads 
     struct timeval start,end; 
-    int size = atoi(argv[2]), piece_size =  200; //TODO THIS WILL CHANGE
+    int size = 1000000, piece_size =  200; //TODO THIS WILL CHANGE
  
     int numWorkers, i,j,k,n; 
-    //FILE* fp = fopen("1m_items.txt", "r"); //TODO this will change
-    FILE* fp = fopen(argv[3], "r");
+    FILE* fp = fopen("1m_items.txt", "r"); //TODO this will change
     if (fp == NULL) return -1;
 
     if (argc > 1){ //number of threads has been specified
@@ -114,7 +113,7 @@ int main(int argc, char* argv[]) {
     gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
     printf("Hi I am Pthread %u and I found the maximum value %d in position A[%d]\n", max_threadID, finalMax, finalMax_index);
-    //printf("Time of execution to check %s items with %d threads: %f usec\n", argv[4], numWorkers, runTime);
+    //printf("Time of execution to check %s items with %d threads: %f usec\n", "1m", numWorkers, runTime); //TODO this will change
 
     
 
