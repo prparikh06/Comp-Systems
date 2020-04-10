@@ -6,7 +6,6 @@
 
 int mini_array_size;
 pthread_t* threads;
-int global_index = 0;;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void* thread_serach(void* args){
@@ -18,7 +17,6 @@ void* thread_serach(void* args){
     j = array[1]; //starting index will help us keep track where the hidden keys are
     max = -1;
     //printf("size of mini array: %d\n", n);
-    // global_index++;
     for (i = 2; i < n+2; i++, j++){ //n+2 because we need to account for the first 2 extra elements
         if (array[i] > max)
             max = array[i];
@@ -40,7 +38,7 @@ int main(int argc, char* argv[]){
     //global_index = 0;
     //if argc, that's how many threads 
     
-    time_t start,end;
+    struct timeval start,end;
     int size = 20, piece_size = 10; //TODO THIS WILL CHANGE
 
     int numWorkers, i,j,k,n;
@@ -66,7 +64,7 @@ int main(int argc, char* argv[]){
     int finalMax = -1, max_threadID = 0;
 
     //start timing
-    time(&start);
+    gettimeofday(&start,NULL);
     
     for (i = 0, k = 0; k < numWorkers; i+=j-2, k++){  //this is a little OD but it's fine
         pthread_t curr_thread;
@@ -99,10 +97,12 @@ int main(int argc, char* argv[]){
         }
     }
 
-    time(&end);
     fclose(fp);
 
-    printf("The final maximum is %d, discovered by thread %u\ntime of execution: %f\n", finalMax, max_threadID, (double) (end-start)/CLOCKS_PER_SEC);
+    //end timing
+    gettimeofday(&end);
+    float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
+    printf("The final maximum is %d, discovered by thread %u\ntime of execution: %f usec\n", finalMax, max_threadID, runTime);
 
     
 
