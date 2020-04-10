@@ -100,7 +100,7 @@ int main(int argc, char* argv[]){
     fclose(fp);
 
     //end timing
-    gettimeofday(&end);
+    gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
     printf("The final maximum is %d, discovered by thread %u\ntime of execution: %f usec\n", finalMax, max_threadID, runTime);
 
