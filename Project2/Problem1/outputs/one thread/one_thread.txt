@@ -1,0 +1,28 @@
+TRIAL 1:
+Time of execution for one thread to check 1k items: 1135.000000 usec
+Time of execution for one thread to check 10k items: 24445.000000 usec
+Time of execution for one thread to check 100k items: 16946.000000 usec
+Time of execution for one thread to check 1M items: 137499.000000 usec
+
+TRIAL 2:
+Time of execution for one thread to check 1k items: 1438.000000 usec
+Time of execution for one thread to check 10k items: 2929.000000 usec
+Time of execution for one thread to check 100k items: 19560.000000 usec
+Time of execution for one thread to check 1M items: 130384.000000 usec
+
+EXAMPLE OUTPUT:
+1k items:
+Hi I am Pthread 6300192 and I found the hidden keys at A[250] A[500] and A[750]
+I found max value 2147469841 at A[165]
+10k items:
+Hi I am Pthread 6300192 and I found the hidden keys at A[2500] A[5000] and A[7500]
+I found max value 2147469841 at A[165]
+100k items:
+Hi I am Pthread 6300192 and I found the hidden keys at A[25000] A[50000] and A[75000]
+I found max value 2147469841 at A[165]
+1M items:
+Hi I am Pthread 6300192 and I found the hidden keys at A[250000] A[500000] and A[750000]
+I found max value 2147436389 at A[627312]
+
+
+
