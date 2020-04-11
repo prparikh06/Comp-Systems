@@ -118,6 +118,9 @@ int main(int argvc, char *argv[])
 		return 0;
 	}
 	
+	struct timeval start,end; 
+	gettimeofday(&start,NULL);
+	
 	int depth = atoi(argv[1]);
 	int nchild = atoi(argv[2]);
 	char* fileName = argv[3];
@@ -175,6 +178,11 @@ int main(int argvc, char *argv[])
 	fclose(outp);
 	
 	remove(tempPath);
+	
+	
+	gettimeofday(&end,NULL);
+    float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
+	printf("%s: %d us", fileName, runTime);
 	
 	return 0;
 }
