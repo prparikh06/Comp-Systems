@@ -2,7 +2,7 @@ TRIAL 1:
 Time of execution to check 1000 items with 1000 threads: 291847.000000 usec
 Time of execution to check 1000 items with 500 threads: 158708.000000 usec
 Time of execution to check 1000 items with 100 threads: 36138.000000 usec
-Time of execution to check 1000 items with 50 threads: 18632.000000 usec
+Time of execution to check 1000 items with 50 threads: 14632.000000 usec
 Time of execution to check 1000 items with 10 threads: 3172.000000 usec
 Time of execution to check 1000 items with 5 threads: 1749.000000 usec
 
@@ -10,7 +10,7 @@ TRIAL 2:
 Time of execution to check 1000 items with 1000 threads: 301265.000000 usec
 Time of execution to check 1000 items with 500 threads: 141784.000000 usec
 Time of execution to check 1000 items with 100 threads: 40342.000000 usec
-Time of execution to check 1000 items with 50 threads: 16991.000000 usec
+Time of execution to check 1000 items with 50 threads: 15991.000000 usec
 Time of execution to check 1000 items with 10 threads: 3566.000000 usec
 Time of execution to check 1000 items with 5 threads: 1848.000000 usec
 
