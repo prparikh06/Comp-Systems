@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -O2
 
 all:
-	$(CC) $(CFLAGS) -o out prob2Main.c
+	$(CC) $(CFLAGS) -o out prob2main.c
 
 clean:
 	rm out

@@ -1,0 +1,14 @@
+Starting Process: A
+Forking Processs: B
+Starting Process: A
+Starting Process: B
+Forking Processs: C
+Starting Process: A
+Starting Process: B
+Starting Process: C
+Terminating process: C
+Terminating process: B
+Terminating process: A
+A
+	B
+		C
