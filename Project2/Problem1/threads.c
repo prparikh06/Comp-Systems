@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     //if argc, that's how many  threads 
      
     struct timeval start,end; 
-    int size = 1000000, piece_size =  10; //TODO THIS WILL CHANGE
+    int size = 1000000, piece_size =  200; //TODO THIS WILL CHANGE, piece_size = default piece size
  
     int numWorkers, i,j,k,n; 
     FILE* fp = fopen("1m_items.txt", "r"); //TODO this will change
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     else{
         //divide by pieces size
         numWorkers = size/piece_size; 
-        mini_array_size = 10;
+        mini_array_size = piece_size;
     }
     
     threads = (pthread_t*) malloc(sizeof(pthread_t)*numWorkers);
