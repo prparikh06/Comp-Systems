@@ -33,21 +33,24 @@ void* thread_serach(void* args){
     int i, found_key = -1;
     int start = index[0]; //starting index
     int end = index[1]; //ending index 
-	 if (end > size) end = size; //dont want index to go beyond size
+	if (end > size) end = size; //dont want index to go beyond size
+    
+    //ret vals
+	int* return_vals = (int*) malloc(sizeof(int) * 3);
+	return_vals[0] = -1; return_vals[1] = -1; return_vals[2] = -1;
+    int key_index = 0; //in case a thread finds more than 1 hidden key, keep a key_index for the return_vals array (increment each time its found) 
     
     for (i = start; i < end; i ++){
         if (array[i] == -50){ //hidden key found
-            found_key = i;
+            return_vals[key_index++] = i;
             keys_found++;
-            
         }
         if (keys_found == 3) break;
 
     }
     
-    int* ret = (int*) found_key;
     pthread_mutex_unlock(&mutex);
-    return (void*) ret;
+    return (void*) return_vals;
 }
 
 /*
@@ -108,17 +111,27 @@ struct timeval start,end;
     for (i = 0; i < numWorkers; i++){
         
         //join and get return val     
-        int ret; 
+        int* ret = malloc(sizeof(int) * 3); //ret vals for the indices of the hidden key (if any) 
         
         pthread_join(threads[i], (void*)&ret);
         
-        if(ret != NULL && ret!= -1){
-            //printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret); 
+        if(ret[0] != NULL && ret[0] != -1){ //hidden key found
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret); 
+            found++;
+        }
+        if(ret[1] != NULL && ret[1] != -1){ //another key found
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret); 
+            found++;   
+        }
+        
+        if(ret[2] != NULL && ret[2] != -1){
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret); 
             found++;
             
         }
+
         if(found == 3){
-        		//printf("all three found\n");
+        	//printf("all three found\n");
             break;
         }
        
@@ -129,7 +142,7 @@ struct timeval start,end;
     //end timing
     gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-    printf("Time of execution to check %s items with %d threads: %f usec\n", "1k", numWorkers, runTime); //TODO this will change
+    //printf("Time of execution to check %s items with %d threads: %f usec\n", "1k", numWorkers, runTime); //TODO this will change
 
     
 

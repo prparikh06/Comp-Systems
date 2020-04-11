@@ -20,20 +20,21 @@ pthread_t* threads;
 void* thread_search(void* args){
 
     int* index = (int*) args;
-    int i, max, max_index,found_key = -1;
+    int i, max, max_index, found_key = -1;
 
     int start = index[0]; //starting index
     int end = index[1]; //ending index 
 
     if (end > size) end = size; //dont want index to go beyond size    
     max = 0;
-	int* return_vals = (int*) malloc(sizeof(int) * 3);
-	return_vals[0] = NULL; return_vals[1] = NULL; return_vals[2] = NULL;
+    //ret vals
+	int* return_vals = (int*) malloc(sizeof(int) * 5);
+	return_vals[0] = -1; return_vals[1] = -1; return_vals[2] = -1; return_vals[3] = -1; return_vals[4] = -1;
+    int key_index = 2; //in case a thread finds more than 1 hidden key, keep a key_index for the return_vals array (increment each time its found) 
     for (i = start; i < end; i++){
-		//reached end of array
-
+		
         if (array[i] == -50){ //hidden key found
-				found_key = i;
+				return_vals[key_index++] = i;
         }
         if (array[i] > max){
             max = array[i];
@@ -45,7 +46,6 @@ void* thread_search(void* args){
 
     return_vals[0] = max;
     return_vals[1] = max_index;
-	return_vals[2] = found_key;
 	free(index);
     return (void*) return_vals;
 } 
@@ -113,16 +113,21 @@ int main(int argc, char* argv[]) {
     //join and get absolute max
     for (i = 0; i < numWorkers; i++){
         //join and get return vals        
-        int* return_vals = (int*) malloc(sizeof(int) * 3);
+        int* return_vals = (int*) malloc(sizeof(int) * 5); //return vals are local max, max index, indices of the keys (if found)
 
         pthread_join(threads[i], (void*) &return_vals);
         //printf("return vals are = %d, %d, %d for thread %u\n", return_vals[0], return_vals[1], return_vals[2], &threads[i]);
 
         int currMax = (int) return_vals[0];
 
-        if (return_vals[2] != -1){ //key has been found
+        if (return_vals[2] != -1) //a key has been found
             printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[2]);
-        }
+        
+        if (return_vals[3] != -1) //another has been found
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[3]);
+
+        if (return_vals[4] != -1) //another has been found
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[4]);
 
         if (currMax > finalMax){
             finalMax = currMax;
