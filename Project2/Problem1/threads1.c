@@ -48,7 +48,7 @@ void* thread_serach(void* args){
         if (keys_found == 3) break;
 
     }
-    
+
     pthread_mutex_unlock(&mutex);
     return (void*) return_vals;
 }
@@ -116,16 +116,16 @@ struct timeval start,end;
         pthread_join(threads[i], (void*)&ret);
         
         if(ret[0] != NULL && ret[0] != -1){ //hidden key found
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret); 
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret[0]); 
             found++;
         }
         if(ret[1] != NULL && ret[1] != -1){ //another key found
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret); 
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret[1]); 
             found++;   
         }
         
         if(ret[2] != NULL && ret[2] != -1){
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret); 
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret[2]); 
             found++;
             
         }
