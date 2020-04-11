@@ -18,7 +18,7 @@ int keys_found = 0;
     - index of key (if found)
 */
 
-void* thread_serach(void* args){
+void* thread_search(void* args){
 
    if (keys_found == 3){
 		  //printf("exiting...\n");
@@ -102,7 +102,7 @@ struct timeval start,end;
         pthread_t curr_thread;
         int* args = malloc(sizeof(int)*2);
         args[0] = i; args[1] = i+piece_size;
-        pthread_create(&curr_thread, NULL, thread_serach, (void*) args);
+        pthread_create(&curr_thread, NULL, thread_search, (void*) args);
         threads[k] = curr_thread;
     }
 
