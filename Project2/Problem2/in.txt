@@ -1,4 +1,4 @@
-A 2 B C
-B 1 D
-D 0
-C 0
+A 1 B
+B 2 E F
+E 0
+F 0
