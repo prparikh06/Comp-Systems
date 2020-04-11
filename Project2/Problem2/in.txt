@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-A 1 B
-B 2 E F
-E 0
-F 0
-=======
 A 2 B C
 B 1 D
 D 0
 C 0
-
->>>>>>> d73faac8373933b94437e1607aa8eab0d1811fad
