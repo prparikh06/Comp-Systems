@@ -40,12 +40,21 @@ void* thread_serach(void* args){
     free(array);
     return (void*) return_vals;
 } 
- 
+
+/*
+    DEFAULT PIECE SIZE WILL VARY DEPENDING ON SIZE OF INPUT/TEXT FILE
+    piece_size = 200 if 1m
+    piece_size = 100 if 100k
+    piece_size = 50 if 10k
+    piece_size = 10 if 1k
+
+*/
+
 int main(int argc, char* argv[]) { 
     //if argc, that's how many  threads 
      
     struct timeval start,end; 
-    int size = 1000000, piece_size =  200; //TODO THIS WILL CHANGE, piece_size = default piece size
+    int size = 1000000, piece_size =  200; //TODO THIS WILL CHANGE
  
     int numWorkers, i,j,k,n; 
     FILE* fp = fopen("1m_items.txt", "r"); //TODO this will change
