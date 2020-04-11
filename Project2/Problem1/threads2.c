@@ -4,30 +4,22 @@
 #include <sys/time.h>
 #include <math.h>
 
+
 int* array;
 int array_size;
 pthread_t* threads;
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-int keys_found = 0; 
-
-
 
 /*
     data to be returned:
+    - local max
+    - index of local max
     - index of key (if found)
 */
-
+    
 void* thread_serach(void* args){
-
-   if (keys_found == 3){
-        pthread_exit(NULL);
-    }
-
-    //lock protect keys_found
-    pthread_mutex_lock(&mutex);
-
+   
     int* array = (int*) args;
-    int i, found_key = -1;
+    int i, max, max_index,found_key = -1;
     start = args[0]; //starting index
     end = args[1]; //ending index 
     max = 0;
@@ -35,17 +27,21 @@ void* thread_serach(void* args){
     for (i = start; i < end, i < array_size; i ++){
         if (array[i] == -50){ //hidden key found
             found_key = i;
-            keys_found++;
-            
+            continue;
         }
-        if (keys_found == 3) break;
-
+        if (array[i] > max){
+            max = array[i];
+            max_index = i;
+        }
+        
     }
-    
-    int* ret = (int*) found_key;
-    pthread_mutex_unlock(&mutex);
-    return (void*) ret;
-}
+
+    int* return_vals = (int*) malloc(sizeof(int) * 3);
+    return_vals[0] = max;
+    return_vals[1] = max_index;
+    return_vals[2] = found_key;
+    return (void*) return_vals;
+} 
 
 /*
     DEFAULT PIECE SIZE WILL VARY DEPENDING ON SIZE OF INPUT/TEXT FILE
@@ -56,8 +52,9 @@ void* thread_serach(void* args){
 
 */
 
-int main(int argc, char* argv[]){ 
-struct timeval start,end; 
+int main(int argc, char* argv[]) { 
+     
+    struct timeval start,end; 
     //size = 1000000, piece_size =  200; //TODO THIS WILL CHANGE
     size = atoi(argv[2]);
     FILE *fp = fopen(argv[3],"r");
@@ -82,6 +79,7 @@ struct timeval start,end;
     }
     
     threads = (pthread_t*) malloc(sizeof(pthread_t)*numWorkers);
+    int finalMax = -1, finalMax_index = -1, max_threadID = 0;
 
     //create array
     array = malloc(sizeof(int) * size);
@@ -101,24 +99,24 @@ struct timeval start,end;
         threads[k] = curr_thread;
     }
 
-    //join 
-    int found = 0;
+    //join and get absolute max
     for (i = 0; i < numWorkers; i++){
+        //join and get return vals        
+        int* return_vals = (int*) malloc(sizeof(int) * 3);
+
+        pthread_join(threads[i], (void*) &return_vals);
         
-        //join and get return val     
-        int ret; 
+        int currMax = (int) return_vals[0];
         
-        pthread_join(threads[i], (void*)&ret);
-        
-        if(ret != NULL && ret!= -1){
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret); 
-            found++;
-            
+        if (return_vals[2] != -1){ //key has been found
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[2]);
         }
-        if(found == 3){
-            break;
+
+        if (currMax > finalMax){
+            finalMax = currMax;
+            finalMax_index =  (int) return_vals[1];          
+            max_threadID = &threads[i];
         }
-       
     }
 
     fclose(fp);
@@ -126,10 +124,9 @@ struct timeval start,end;
     //end timing
     gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-    printf("Time of execution to check %s items with %d threads: %f usec\n", "1k", numWorkers, runTime); //TODO this will change
+    printf("Hi I am Pthread %u and I found the maximum value %d in position A[%d]\n", max_threadID, finalMax, finalMax_index);
+    printf("Time of execution to check %s items with %d threads: %f usec\n", argv[2], numWorkers, runTime); //TODO this will change
 
     
 
 }
-
-
