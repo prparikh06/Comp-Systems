@@ -4,6 +4,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <math.h>
+#include <sys/time.h>
 
 #define BUFF_SIZE 1000000
 
@@ -182,7 +183,7 @@ int main(int argvc, char *argv[])
 	
 	gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-	printf("%s: %d us", fileName, runTime);
+	printf("%s: %d us\n", fileName, runTime);
 	
 	return 0;
 }
