@@ -57,7 +57,6 @@ int main(int argc, char* argv[]){
 	}
     if (argc > 1){
         numWorkers = atoi(argv[1]);
-        if (numWorkers > size) numWorkers = size;
         for (i = 0; i < numWorkers; i++){
             //create threads 
             mini_array_size = ceil((double)size/numWorkers); 
