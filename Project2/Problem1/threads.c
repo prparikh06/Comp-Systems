@@ -6,43 +6,36 @@
 
 int mini_array_size;
 pthread_t* threads;
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+/*
+    data to be returned:
+    - local max
+    - index of local max
+    - index of key (if found)
+*/
+    
 void* thread_serach(void* args){
    
-    pthread_mutex_lock(&mutex);
-
     int* array = (int*) args;
     int i, j, n, max, max_index,found_key = -1;
     n = array[0]; //can't guarantee that all array sizes will be same  (if our num workers doesnt divide)
     j = array[1]; //starting index will help us keep track where the hidden keys are
     max = 0;
-    //printf("size of mini array: %d\n", n);
     for (i = 2; i < n+2; i++, j++){ //n+2 because we need to account for the first 2 extra elements
         if (array[i] == -50){ //hidden key found
-            //printf("hidden key found at %d!\n", j);
             found_key = j;
-            //printf("found key at %d\n", j);
             continue;
         }
         if (array[i] > max){
             max = array[i];
             max_index = j;
-            //printf("local_max val %d = at index %d\n",array[i],j);
         }
         
     }
-    /*
-        data to be returned:
-        - local max
-        - index of local max
-        - index of key (if found)
-    */
-    pthread_mutex_unlock(&mutex);
+
     int* return_vals = (int*) malloc(sizeof(int) * 3);
     return_vals[0] = max;
     return_vals[1] = max_index;
-    //printf("local max and index: %d %d\n", max, max_index);
     return_vals[2] = found_key;
     free(array);
     return (void*) return_vals;
@@ -75,7 +68,6 @@ int main(int argc, char* argv[]) {
     }
     
     threads = (pthread_t*) malloc(sizeof(pthread_t)*numWorkers);
-    // int maximums[numWorkers];
     int finalMax = -1, finalMax_index = -1, max_threadID = 0;
 
     //start timing
@@ -93,7 +85,6 @@ int main(int argc, char* argv[]) {
 
         mini_array[0] = j-2; //size of array
         mini_array[1] = i; //starting index
-        //printf("i = %d, j = %d\n", i,j);
         //mini array done, time to thread
         pthread_create(&curr_thread, NULL, thread_serach, (void*) mini_array);
         threads[k] = curr_thread;
@@ -105,7 +96,6 @@ int main(int argc, char* argv[]) {
 
         pthread_join(threads[i], (void*) &return_vals);
         
-        // printf("ret values: %d %d %d \n", (int) return_vals[0], (int) return_vals[1], (int) return_vals[2]);
         int currMax = (int) return_vals[0];
         
         if (return_vals[2] != -1){ //key has been found
