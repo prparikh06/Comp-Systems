@@ -6,12 +6,16 @@
 
 int mini_array_size;
 pthread_t* threads;
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+/*
+    data to be returned:
+    - local max
+    - index of local max
+    - index of key (if found)
+*/
+    
 void* thread_serach(void* args){
    
-    pthread_mutex_lock(&mutex);
-
     int* array = (int*) args;
     int i, j, n, max, max_index,found_key = -1;
     n = array[0]; //can't guarantee that all array sizes will be same  (if our num workers doesnt divide)
@@ -28,13 +32,7 @@ void* thread_serach(void* args){
         }
         
     }
-    /*
-        data to be returned:
-        - local max
-        - index of local max
-        - index of key (if found)
-    */
-    pthread_mutex_unlock(&mutex);
+
     int* return_vals = (int*) malloc(sizeof(int) * 3);
     return_vals[0] = max;
     return_vals[1] = max_index;
@@ -45,29 +43,31 @@ void* thread_serach(void* args){
  
 int main(int argc, char* argv[]) { 
     //if argc, that's how many  threads 
+     
     struct timeval start,end; 
-    int size = 1000000, piece_size =  200; //TODO THIS WILL CHANGE
+    int size = 1000000, piece_size =  200; //TODO THIS WILL CHANGE, piece_size = default piece size
  
     int numWorkers, i,j,k,n; 
     FILE* fp = fopen("1m_items.txt", "r"); //TODO this will change
-    if (fp == NULL) return -1;
-
-    if (argc > 1){ //number of threads has been specified
+    if (fp == NULL) {
+		printf("Could not open file.\n");   
+    	return -1;
+	}
+    if (argc > 1){
         numWorkers = atoi(argv[1]);
-        //if (numWorkers > size) numWorkers = size;
+        if (numWorkers > size) numWorkers = size;
         for (i = 0; i < numWorkers; i++){
             //create threads 
             mini_array_size = ceil((double)size/numWorkers); 
         }
     }
     else{
-        //divide by pieces size 
+        //divide by pieces size
         numWorkers = size/piece_size; 
-        mini_array_size = 10;
+        mini_array_size = piece_size;
     }
     
     threads = (pthread_t*) malloc(sizeof(pthread_t)*numWorkers);
-    // int maximums[numWorkers];
     int finalMax = -1, finalMax_index = -1, max_threadID = 0;
 
     //start timing
@@ -79,6 +79,7 @@ int main(int argc, char* argv[]) {
         int* mini_array = (int*) malloc(sizeof(int) * (mini_array_size + 2)); //adding 2 in order to add size and starting index
         for (j = 2; j < mini_array_size+2; j++){
             if (fscanf(fp,"%d\n", &n) == EOF) break;
+            //printf("adding item %d to mini array\n", n);
             mini_array[j] = n;
         }
 
@@ -94,7 +95,8 @@ int main(int argc, char* argv[]) {
         int* return_vals = (int*) malloc(sizeof(int) * 3);
 
         pthread_join(threads[i], (void*) &return_vals);
-                int currMax = (int) return_vals[0];
+        
+        int currMax = (int) return_vals[0];
         
         if (return_vals[2] != -1){ //key has been found
             printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[2]);
@@ -117,7 +119,4 @@ int main(int argc, char* argv[]) {
 
     
 
-
 }
-
-

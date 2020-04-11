@@ -36,8 +36,10 @@ int main(int argc, char* argv[]){
     int size = 1000; //TODO THIS WILL CHANGE
     int numWorkers, i,n;
     FILE* fp = fopen("1k_items.txt",  "r"); //TODO THIS WILL CHANGE
-    if (fp == NULL) return -1;
-
+    if (fp == NULL) {
+		printf("Could not open file.\n");   
+    	return -1;
+	}
     //start timing
     gettimeofday(&start,NULL);
     int* array = malloc(sizeof(int) * (size + 1));
