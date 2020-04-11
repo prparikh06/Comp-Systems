@@ -50,7 +50,11 @@ void* thread_serach(void* args){
 int main(int argc, char* argv[]){ 
     //if argc, that's how many threads 
     struct timeval start,end;
+<<<<<<< HEAD
     int size = 1000, piece_size =  200; //TODO THIS WILL CHANGE
+=======
+    int size = 1000, piece_size = 10; //TODO THIS WILL CHANGE
+>>>>>>> parent of bff5b04... hopefully finished
 
     int numWorkers, i,j,k,n;
     FILE* fp = fopen("1k_items.txt",  "r"); //TODO THIS WILL CHANGE
@@ -58,7 +62,7 @@ int main(int argc, char* argv[]){
 
     if (argc > 1){
         numWorkers = atoi(argv[1]);
-        //if (numWorkers > size) numWorkers = size;
+        if (numWorkers > size) numWorkers = size;
         for (i = 0; i < numWorkers; i++){
             //create threads 
             mini_array_size = ceil((double)size/numWorkers); 
@@ -109,10 +113,14 @@ int main(int argc, char* argv[]){
             
         }
         if(found == 3){
-            // printf("we found em all. should be done \n");
+            printf("we found em all. should be done \n");
             break;
         }
-
+        // else {
+        //     printf("here\n");
+        //     continue;
+        // }
+        
     }
 
     fclose(fp);
@@ -120,7 +128,11 @@ int main(int argc, char* argv[]){
     //end timing
     gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
+<<<<<<< HEAD
     //printf("Time of execution to check %s items with %d threads: %f usec\n", "1k", numWorkers, runTime); //TODO this will change
+=======
+    //printf("time of execution: %f usec\n", runTime);
+>>>>>>> parent of bff5b04... hopefully finished
 
     
 
