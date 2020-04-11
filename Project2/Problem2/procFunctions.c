@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #include <unistd.h>
 #include <sys/types.h> 
 #include <sys/wait.h>
@@ -41,7 +40,7 @@ void generate(tree_node* ptr){//generates the processes
 		waitpid(child,&status,0);
 	    }else{
 		printf("Forking Processs: %c\n", ptr->children[x]->name);
-		exit(10);
+		_exit(1);
 	    }
 	    generate(ptr->children[x]);
 	    x++;

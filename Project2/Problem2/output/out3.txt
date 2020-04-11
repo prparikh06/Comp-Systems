@@ -1,0 +1,33 @@
+Starting Process: A
+Forking Processs: B
+Starting Process: A
+Starting Process: B
+Forking Processs: E
+Starting Process: A
+Starting Process: B
+Starting Process: E
+Terminating process: E
+Terminating process: B
+Forking Processs: C
+Starting Process: A
+Starting Process: B
+Starting Process: E
+Terminating process: E
+Terminating process: B
+Starting Process: C
+Forking Processs: F
+Starting Process: A
+Starting Process: B
+Starting Process: E
+Terminating process: E
+Terminating process: B
+Starting Process: C
+Starting Process: F
+Terminating process: F
+Terminating process: C
+Terminating process: A
+A
+	B
+		E
+	C
+		F
