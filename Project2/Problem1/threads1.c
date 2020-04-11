@@ -79,8 +79,7 @@ int main(int argc, char* argv[]){
     
     threads = (pthread_t*) malloc(sizeof(pthread_t)*numWorkers);
 
-    //start timing
-    gettimeofday(&start,NULL);
+
 
     for (i = 0, k = 0; k < numWorkers; i+=j-2, k++){  //this is a little OD but it's fine
         pthread_t curr_thread;        
@@ -91,11 +90,13 @@ int main(int argc, char* argv[]){
             if (fscanf(fp,"%d\n", &n) == EOF) break;
             mini_array[j] = n;
         }
-
+        
         mini_array[0] = j-2; //size of array
         mini_array[1] = i; //starting index
         
         //mini array done, time to thread
+        //start timing
+        gettimeofday(&start,NULL);
         pthread_create(&curr_thread, NULL, thread_serach, (void*) mini_array);
         threads[k] = curr_thread;
         
