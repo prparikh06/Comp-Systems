@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+#include <unistd.h>
 #include <sys/types.h> 
 #include <sys/wait.h>
 #include <stdlib.h>
@@ -28,8 +30,7 @@ void print_tree(tree_node *root){
 void generate(tree_node* ptr){//generates the processes
 	int x = 0;
 	pid_t child;
-	int fd1[2]; 
-
+	printf("Starting Process: %c\n", ptr->name);
 	if(ptr->nr_children == 0){
 		sleep(10);
 	}else{
@@ -39,19 +40,19 @@ void generate(tree_node* ptr){//generates the processes
 		int status;
 		waitpid(child,&status,0);
 	    }else{
+		printf("Forking Processs: %c\n", ptr->children[x]->name);
 		exit(10);
 	    }
 	    generate(ptr->children[x]);
 	    x++;
 	  }
 	}
-	printf("This is process: %c\n", ptr->name);
+	printf("Terminating process: %c\n", ptr->name);
 }
 
 tree_node* createTree(char* proc){//creates the tree struct
 	int x = 0;
 	tree_node* ptr = (tree_node*)malloc(sizeof(tree_node));
-	tree_node* cptr = (tree_node*)malloc(sizeof(tree_node));
 	ptr->name = proc[0];
 	ptr->nr_children = proc[2] - '0';
 	ptr->children = NULL;
@@ -93,4 +94,3 @@ tree_node* read_tree_file(const char *filename){
 
 	return ptr;
 }
-
