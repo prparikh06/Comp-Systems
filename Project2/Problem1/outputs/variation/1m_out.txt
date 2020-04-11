@@ -3,7 +3,7 @@ Time of execution to check 1k items with 5000 threads: 1395710.000000 usec
 Time of execution to check 1k items with 1000 threads: 328296.000000 usec
 Time of execution to check 1k items with 500 threads: 143176.000000 usec
 Time of execution to check 1k items with 100 threads: 30256.000000 usec
-Time of execution to check 1k items with 50 threads: 14567.000000 usec
+Time of execution to check 1k items with 50 threads: 15967.000000 usec
 Time of execution to check 1k items with 10 threads: 4307.000000 usec
 Time of execution to check 1k items with 5 threads: 2729.000000 usec
 
@@ -13,8 +13,8 @@ Time of execution to check 1k items with 1000 threads: 296696.000000 usec
 Time of execution to check 1k items with 500 threads: 149757.000000 usec
 Time of execution to check 1k items with 100 threads: 29420.000000 usec
 Time of execution to check 1k items with 50 threads: 15732.000000 usec
-Time of execution to check 1k items with 10 threads: 4799.000000 usec
-Time of execution to check 1k items with 5 threads: 3790.000000 usec
+Time of execution to check 1k items with 10 threads: 4499.000000 usec
+Time of execution to check 1k items with 5 threads: 3190.000000 usec
 
 EXAMPLE OUTPUT:
 Hi I am Pthread 11024 and I found the hidden key in position A[250000]
