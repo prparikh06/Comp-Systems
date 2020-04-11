@@ -97,14 +97,11 @@ int main(int argc, char* argv[]) {
     gettimeofday(&start,NULL);
     
     for (i = 0; i < size; i+=piece_size, k++){
-			if (i > size){ //done searching array
-				break;
-			}
+
         pthread_t curr_thread;
         int* args = malloc(sizeof(int)*2);
         args[0] = i; args[1] = i+piece_size;
         if (args[1] > size) args[1] = size;
-			        
 			pthread_create(&curr_thread, NULL, thread_search, (void*) args);
 
         threads[k] = curr_thread;

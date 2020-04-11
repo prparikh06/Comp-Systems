@@ -1,20 +1,19 @@
 TRIAL 1:
-Time of execution to check 1M items with 5000 threads: 1580305.000000 usec
-Time of execution to check 1M items with 1000 threads: 303072.000000 usec
-Time of execution to check 1M items with 500 threads: 189568.000000 usec
-Time of execution to check 1M items with 100 threads: 139283.000000 usec
-Time of execution to check 1M items with 50 threads: 151355.000000 usec
-Time of execution to check 1M items with 10 threads: 146260.000000 usec
-Time of execution to check 1M items with 5 threads: 128243.000000 usec
-
+Time of execution to check 1000000 items with 5000 threads: 1416855.000000 usec
+Time of execution to check 1000000 items with 1000 threads: 282562.000000 usec
+Time of execution to check 1000000 items with 500 threads: 151240.000000 usec
+Time of execution to check 1000000 items with 100 threads: 32493.000000 usec
+Time of execution to check 1000000 items with 50 threads: 16335.000000 usec
+Time of execution to check 1000000 items with 10 threads: 4382.000000 usec
+Time of execution to check 1000000 items with 5 threads: 2920.000000 usec
 TRIAL 2:
-Time of execution to check 1M items with 5000 threads: 1538026.000000 usec
-Time of execution to check 1M items with 1000 threads: 299764.000000 usec
-Time of execution to check 1M items with 500 threads: 172668.000000 usec
-Time of execution to check 1M items with 100 threads: 134121.000000 usec
-Time of execution to check 1M items with 50 threads: 130657.000000 usec
-Time of execution to check 1M items with 10 threads: 128447.000000 usec
-Time of execution to check 1M items with 5 threads: 128079.000000 usec
+Time of execution to check 1000000 items with 5000 threads: 1519872.000000 usec
+Time of execution to check 1000000 items with 1000 threads: 276757.000000 usec
+Time of execution to check 1000000 items with 500 threads: 144302.000000 usec
+Time of execution to check 1000000 items with 100 threads: 34317.000000 usec
+Time of execution to check 1000000 items with 50 threads: 17740.000000 usec
+Time of execution to check 1000000 items with 10 threads: 4687.000000 usec
+Time of execution to check 1000000 items with 5 threads: 3253.000000 usec
 
 EXAMPLE OUTPUT:
 Hi I am Pthread 11024 and I found the hidden key in position A[250000]
