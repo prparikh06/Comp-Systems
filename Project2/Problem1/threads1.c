@@ -33,8 +33,8 @@ void* thread_serach(void* args){
     int i, found_key = -1;
     int start = index[0]; //starting index
     int end = index[1]; //ending index 
-
-    //
+	 if (end > size) end = size; //dont want index to go beyond size
+    
     for (i = start; i < end; i ++){
         if (array[i] == -50){ //hidden key found
             found_key = i;
@@ -95,7 +95,7 @@ struct timeval start,end;
     //start timing
     gettimeofday(&start,NULL);
     
-    for (k= 0, i = 0; i < size; i+=piece_size, k++){
+    for (k= 0, i = 0; k < numWorkers; i+=piece_size, k++){
         pthread_t curr_thread;
         int* args = malloc(sizeof(int)*2);
         args[0] = i; args[1] = i+piece_size;

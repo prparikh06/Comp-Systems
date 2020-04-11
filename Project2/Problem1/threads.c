@@ -25,9 +25,10 @@ void* thread_search(void* args){
     int start = index[0]; //starting index
     int end = index[1]; //ending index 
 
-    if (end > size) end = size; //dont want to go beyond size    
+    if (end > size) end = size; //dont want index to go beyond size    
     max = 0;
-	   int* return_vals = (int*) malloc(sizeof(int) * 3);
+	int* return_vals = (int*) malloc(sizeof(int) * 3);
+	return_vals[0] = NULL; return_vals[1] = NULL; return_vals[2] = NULL;
     for (i = start; i < end; i++){
 		//reached end of array
 
@@ -74,7 +75,7 @@ int main(int argc, char* argv[]) {
 	}
     if (argc > 1){
         numWorkers = atoi(argv[1]);
-	     piece_size = ceil((double)size/numWorkers); 
+	     piece_size = ceil(((double)size/numWorkers)); 
         
     }
     else{
@@ -83,6 +84,7 @@ int main(int argc, char* argv[]) {
     }
     
     threads = (pthread_t*) malloc(sizeof(pthread_t)*numWorkers);
+
     int finalMax = -1, finalMax_index = -1, max_threadID = 0;
 
     //create array
@@ -96,18 +98,16 @@ int main(int argc, char* argv[]) {
     //start timing
     gettimeofday(&start,NULL);
     
-    for (i = 0; i < size; i+=piece_size, k++){
-			if (i > size){ //done searching array
-				break;
-			}
+    for (i = 0; k < numWorkers; i+=piece_size, k++){
+
         pthread_t curr_thread;
+	if (i > size) i = size; 
         int* args = malloc(sizeof(int)*2);
         args[0] = i; args[1] = i+piece_size;
-        if (args[1] > size) args[1] = size;
-			        
 			pthread_create(&curr_thread, NULL, thread_search, (void*) args);
 
         threads[k] = curr_thread;
+
     }
 	
     //join and get absolute max
@@ -116,11 +116,12 @@ int main(int argc, char* argv[]) {
         int* return_vals = (int*) malloc(sizeof(int) * 3);
 
         pthread_join(threads[i], (void*) &return_vals);
-        
+        //printf("return vals are = %d, %d, %d for thread %u\n", return_vals[0], return_vals[1], return_vals[2], &threads[i]);
+
         int currMax = (int) return_vals[0];
 
         if (return_vals[2] != -1){ //key has been found
-            //printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[2]);
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[2]);
         }
 
         if (currMax > finalMax){
@@ -128,6 +129,7 @@ int main(int argc, char* argv[]) {
             finalMax_index =  (int) return_vals[1];          
             max_threadID = &threads[i];
         }
+	free(return_vals);
     }
 	//end timing
     gettimeofday(&end,NULL);
@@ -135,8 +137,8 @@ int main(int argc, char* argv[]) {
 	 free(array);
     
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-    //printf("Hi I am Pthread %u and I found the maximum value %d in position A[%d]\n", max_threadID, finalMax, finalMax_index);
-    printf("Time of execution to check %s items with %d threads: %f usec\n", argv[2], numWorkers, runTime); //TODO this will change
+    printf("Hi I am Pthread %u and I found the maximum value %d in position A[%d]\n", max_threadID, finalMax, finalMax_index);
+    //printf("Time of execution to check %s items with %d threads: %f usec\n", argv[2], numWorkers, runTime); //TODO this will change
 
     
 
