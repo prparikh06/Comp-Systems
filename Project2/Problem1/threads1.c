@@ -142,7 +142,7 @@ struct timeval start,end;
     //end timing
     gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-    //printf("Time of execution to check %s items with %d threads: %f usec\n", "1k", numWorkers, runTime); //TODO this will change
+    //printf("Time of execution to check %s items with %d threads: %f usec\n", argv[2], numWorkers, runTime); //TODO this will change
 
     
 
