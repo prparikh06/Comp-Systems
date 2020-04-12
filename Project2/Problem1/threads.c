@@ -104,9 +104,10 @@ int main(int argc, char* argv[]) {
 	if (i > size) i = size; 
         int* args = malloc(sizeof(int)*2);
         args[0] = i; args[1] = i+piece_size;
-			pthread_create(&curr_thread, NULL, thread_search, (void*) args);
+	pthread_create(&curr_thread, NULL, thread_search, (void*) args);
 
-        threads[k] = curr_thread;
+	//printf("Created thread %u\n", curr_thread);        
+	threads[k] = curr_thread;
 
     }
 	
@@ -121,18 +122,18 @@ int main(int argc, char* argv[]) {
         int currMax = (int) return_vals[0];
 
         if (return_vals[2] != -1) //a key has been found
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[2]);
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], (int) return_vals[2]);
         
         if (return_vals[3] != -1) //another has been found
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[3]);
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], (int) return_vals[3]);
 
         if (return_vals[4] != -1) //another has been found
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], (int) return_vals[4]);
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], (int) return_vals[4]);
 
         if (currMax > finalMax){
             finalMax = currMax;
             finalMax_index =  (int) return_vals[1];          
-            max_threadID = &threads[i];
+            max_threadID = threads[i];
         }
 	free(return_vals);
     }

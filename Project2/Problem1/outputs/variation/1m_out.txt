@@ -16,8 +16,3 @@ Time of execution to check 1k items with 50 threads: 15732.000000 usec
 Time of execution to check 1k items with 10 threads: 4499.000000 usec
 Time of execution to check 1k items with 5 threads: 3190.000000 usec
 
-EXAMPLE OUTPUT:
-Hi I am Pthread 11024 and I found the hidden key in position A[250000]
-Hi I am Pthread 21024 and I found the hidden key in position A[500000]
-Hi I am Pthread 31024 and I found the hidden key in position A[750000]
-

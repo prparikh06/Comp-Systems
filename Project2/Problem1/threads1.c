@@ -103,6 +103,7 @@ struct timeval start,end;
         int* args = malloc(sizeof(int)*2);
         args[0] = i; args[1] = i+piece_size;
         pthread_create(&curr_thread, NULL, thread_search, (void*) args);
+	printf("Created thread %u\n", curr_thread);
         threads[k] = curr_thread;
     }
 
@@ -115,17 +116,19 @@ struct timeval start,end;
         
         pthread_join(threads[i], (void*)&ret);
         
-        if(ret[0] != NULL && ret[0] != -1){ //hidden key found
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret[0]); 
+	if (ret == NULL)
+		continue;
+        if(ret[0] != -1){ //hidden key found
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], ret[0]); 
             found++;
         }
-        if(ret[1] != NULL && ret[1] != -1){ //another key found
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret[1]); 
+        if(ret[1] != -1){ //another key found
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], ret[1]); 
             found++;   
         }
         
-        if(ret[2] != NULL && ret[2] != -1){
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", &threads[i], ret[2]); 
+        if(ret[2] != -1){
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], ret[2]); 
             found++;
             
         }
