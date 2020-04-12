@@ -1,12 +1,12 @@
 TRIAL 1:
 Time of execution for one thread to check 1000 items: 1014.000000 usec
-Time of execution for one thread to check 10000 items: 3304.000000 usec
+Time of execution for one thread to check 10000 items: 1100.000000 usec
 Time of execution for one thread to check 100000 items: 1237.000000 usec
 Time of execution for one thread to check 1000000 items: 4393.000000 usec
 
 TRIAL 2:
 Time of execution for one thread to check 1000 items: 983.000000 usec
-Time of execution for one thread to check 10000 items: 3269.000000 usec
+Time of execution for one thread to check 10000 items: 1066.000000 usec
 Time of execution for one thread to check 100000 items: 1591.000000 usec
 Time of execution for one thread to check 1000000 items: 3400.000000 usec
 
