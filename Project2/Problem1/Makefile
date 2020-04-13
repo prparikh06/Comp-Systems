@@ -1,10 +1,10 @@
 all:
-	gcc -lm -pthread -fsanitize=address -w -g -o thread threads.c
+	gcc -fsanitize=address -w -g -o thread threads.c -lm -pthread
 
 one:
-	gcc -lm -pthread -fsanitize=address -w -g -o thread one_thread.c
+	gcc -fsanitize=address -w -g -o thread one_thread.c -lm -pthread
 variation:
-	gcc -lm -pthread -fsanitize=address -w -g -o thread threads1.c
+	gcc -fsanitize=address -w -g -o thread threads1.c -lm -pthread
 
 clean:
 	rm -rf thread

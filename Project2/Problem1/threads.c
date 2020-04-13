@@ -70,6 +70,8 @@ int main(int argc, char* argv[]) {
      
     struct timeval start,end; 
     int numWorkers, i,k,n;
+	
+	FILE* foutp = fopen("output.txt", "w+");
 
     char* file = "1m_items.txt"; //TODO this will change
     FILE* fp = fopen(file, "r"); 
@@ -130,10 +132,13 @@ int main(int argc, char* argv[]) {
         args[0] = i; args[1] = i+piece_size;
 	pthread_create(&curr_thread, NULL, thread_search, (void*) args);
 
-	printf("Created thread %u\n", curr_thread);        
+	printf("Created thread %u\n", curr_thread);     
+	fprintf(foutp, "Created thread %u\n", curr_thread);	
 	threads[k] = curr_thread;
 
     }
+	
+	
 	
     //join and get absolute max
     for (i = 0; i < numWorkers; i++){
@@ -146,14 +151,20 @@ int main(int argc, char* argv[]) {
         int currMax = (int) return_vals[0];
 
         if (return_vals[2] != -1) //a key has been found
+		{
             printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], (int) return_vals[2]);
-        
-        if (return_vals[3] != -1) //another has been found
+			fprintf(foutp, "Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], (int) return_vals[2]);
+        }
+        if (return_vals[3] != -1)
+		{			//another has been found
             printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], (int) return_vals[3]);
-
+			fprintf(foutp, "Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], (int) return_vals[3]);
+		}
         if (return_vals[4] != -1) //another has been found
+		{
             printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], (int) return_vals[4]);
-
+			fprintf(foutp, "Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], (int) return_vals[4]);
+		}
         if (currMax > finalMax){
             finalMax = currMax;
             finalMax_index =  (int) return_vals[1];          
@@ -164,13 +175,13 @@ int main(int argc, char* argv[]) {
 	//end timing
     gettimeofday(&end,NULL);
 
-	 free(array);
+	free(array);
     
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
     printf("Hi I am Pthread %u and I found the maximum value %d in position A[%d]\n", max_threadID, finalMax, finalMax_index);
     //printf("Time of execution to check %d items with %d threads: %f usec\n", size, numWorkers, runTime); 
 
-
+	fclose(foutp);
     
 
 }
