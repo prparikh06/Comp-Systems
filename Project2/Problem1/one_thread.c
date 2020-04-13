@@ -10,6 +10,20 @@ int keys_found = 0;
 int* array;
 int size; 
 
+
+
+int get_size(char* file){
+
+	FILE* fp = fopen(file,"r");
+	int n, count = 0;
+	while (fscanf(fp, "%d",&n) != EOF) {
+		count++;
+	}
+  	fclose(fp);
+	return count;
+}
+
+
 void* thread_search(void* args){  
     int i;
     int max = -1, max_index = -1;
@@ -34,19 +48,19 @@ void* thread_search(void* args){
 }
 
 int main(int argc, char* argv[]){ 
-    //if argc, that's how many threads 
+
     struct timeval start,end;
-    //int size = 1000; //TODO THIS WILL CHANGE
     int numWorkers, i,n;
-    //FILE* fp = fopen("1k_items.txt",  "r"); //TODO THIS WILL CHANGE
-    
-	size = atoi(argv[1]);
-	FILE *fp = fopen(argv[2], "r");    
-    
+    char* file = "1m_items.txt"; //TODO this will change
+
+
+    FILE* fp = fopen(file, "r"); 
     if (fp == NULL) {
 		printf("Could not open file.\n");   
     	return -1;
-	}
+	}  
+
+    size = get_size(file);
 
     array = malloc(sizeof(int) * size);
 
@@ -60,10 +74,11 @@ int main(int argc, char* argv[]){
     gettimeofday(&start,NULL);
     //create     
     pthread_create(&thread, NULL, thread_search, NULL);
+    printf("Created thread %u\n", thread);
     //join and get return vals     
     int* ret = malloc(sizeof(int)*5); 
     pthread_join(thread, (void*) &ret);
-    printf("Hi I am Pthread %u and I found the hidden keys at A[%d] A[%d] and A[%d]\n", &thread, ret[2], ret[3], ret[4]);
+    printf("Hi I am Pthread %u and I found the hidden keys at A[%d] A[%d] and A[%d]\n", thread, ret[2], ret[3], ret[4]);
     printf("I found max value %d at A[%d]\n", ret[0], ret[1]);
 
 	free(array);
@@ -71,7 +86,7 @@ int main(int argc, char* argv[]){
     gettimeofday(&end,NULL);
     
     float runtime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-    //printf("Time of execution for one thread to check %s items: %f usec\n", argv[1], runtime);
+    //printf("Time of execution for one thread to check %d items: %f usec\n", size, runtime);
 
     
 

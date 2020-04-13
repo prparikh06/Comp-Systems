@@ -12,6 +12,17 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 int keys_found = 0; 
 
 
+int get_size(char* file){
+
+	FILE* fp = fopen(file,"r");
+	int n, count = 0;
+	while (fscanf(fp, "%d",&n) != EOF) {
+		count++;
+	}
+  	fclose(fp);
+	return count;
+}
+
 
 /*
     data to be returned:
@@ -53,6 +64,21 @@ void* thread_search(void* args){
     return (void*) return_vals;
 }
 
+
+
+int main(int argc, char* argv[]){ 
+    struct timeval start,end; 
+    int i,k,n,numWorkers;
+    char* file = "1m_items.txt"; //TODO this will change
+    
+    FILE* fp = fopen(file, "r"); 
+    if (fp == NULL) {
+		printf("Could not open file.\n");   
+    	return -1;
+	}  
+    size = get_size(file);
+
+       
 /*
     DEFAULT PIECE SIZE WILL VARY DEPENDING ON SIZE OF INPUT/TEXT FILE
     piece_size = 200 if 1m
@@ -61,22 +87,15 @@ void* thread_search(void* args){
     piece_size = 10 if 1k
 
 */
+    if (size == 1000000) piece_size = 10000;
+    else if (size == 100000) piece_size = 1000;
+    else if (size == 10000) piece_size = 100;
+    else piece_size = 10;
 
-int main(int argc, char* argv[]){ 
-struct timeval start,end; 
-    //size = 1000000, piece_size =  200; //TODO THIS WILL CHANGE
-    size = atoi(argv[2]), piece_size = 200;
-    FILE *fp = fopen(argv[3],"r");
     
-    int numWorkers, i,k,n; 
-    //FILE* fp = fopen("1m_items.txt", "r"); //TODO this will change
-    if (fp == NULL) {
-		printf("Could not open file.\n");   
-    	return -1;
-	}
-    if (argc > 1){
+    if (argc > 1){ 
+
         numWorkers = atoi(argv[1]);
-        
         piece_size = ceil((double)size/numWorkers); 
         
     }
@@ -85,7 +104,7 @@ struct timeval start,end;
         numWorkers = size/piece_size; 
         
     }
-    
+
     threads = (pthread_t*) malloc(sizeof(pthread_t)*numWorkers);
 
     //create array
@@ -98,7 +117,7 @@ struct timeval start,end;
     //start timing
     gettimeofday(&start,NULL);
     
-    for (k= 0, i = 0; k < numWorkers; i+=piece_size, k++){
+    for (i = 0, k = 0; k < numWorkers; i+=piece_size, k++){
         pthread_t curr_thread;
         int* args = malloc(sizeof(int)*2);
         args[0] = i; args[1] = i+piece_size;
@@ -145,7 +164,7 @@ struct timeval start,end;
     //end timing
     gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-    //printf("Time of execution to check %s items with %d threads: %f usec\n", argv[2], numWorkers, runTime); //TODO this will change
+    //printf("Time of execution to check %d items with %d threads: %f usec\n", size, numWorkers, runTime); 
 
     
 
