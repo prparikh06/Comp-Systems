@@ -49,6 +49,8 @@ void* thread_search(void* args){
 
 int main(int argc, char* argv[]){ 
 
+	FILE* foutp = fopen("output.txt", "w+");
+
     struct timeval start,end;
     int numWorkers, i,n;
     char* file = "1m_items.txt"; //TODO this will change
@@ -75,20 +77,28 @@ int main(int argc, char* argv[]){
     //create     
     pthread_create(&thread, NULL, thread_search, NULL);
     printf("Created thread %u\n", thread);
+	fprintf(foutp, "Created thread %u\n", thread);
+	
     //join and get return vals     
-    int* ret = malloc(sizeof(int)*5); 
-    pthread_join(thread, (void*) &ret);
+    int* ret;
+    pthread_join(thread, &ret);
+	
     printf("Hi I am Pthread %u and I found the hidden keys at A[%d] A[%d] and A[%d]\n", thread, ret[2], ret[3], ret[4]);
     printf("I found max value %d at A[%d]\n", ret[0], ret[1]);
+	
+	fprintf(foutp, "Hi I am Pthread %u and I found the hidden keys at A[%d] A[%d] and A[%d]\n", thread, ret[2], ret[3], ret[4]);
+    fprintf(foutp, "I found max value %d at A[%d]\n", ret[0], ret[1]);
 
 	free(array);
+	free(ret);
+	
     //end timing
     gettimeofday(&end,NULL);
     
     float runtime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
     //printf("Time of execution for one thread to check %d items: %f usec\n", size, runtime);
 
-    
+    fclose(foutp);
 
 
 }

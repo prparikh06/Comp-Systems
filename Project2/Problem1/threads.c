@@ -143,9 +143,9 @@ int main(int argc, char* argv[]) {
     //join and get absolute max
     for (i = 0; i < numWorkers; i++){
         //join and get return vals        
-        int* return_vals = (int*) malloc(sizeof(int) * 5); //return vals are local max, max index, indices of the keys (if found)
+        int* return_vals;// = (int*) malloc(sizeof(int) * 5); //return vals are local max, max index, indices of the keys (if found)
 
-        pthread_join(threads[i], (void*) &return_vals);
+        pthread_join(threads[i], &return_vals);
         //printf("return vals are = %d, %d, %d for thread %u\n", return_vals[0], return_vals[1], return_vals[2], &threads[i]);
 
         int currMax = (int) return_vals[0];
@@ -179,6 +179,8 @@ int main(int argc, char* argv[]) {
     
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
     printf("Hi I am Pthread %u and I found the maximum value %d in position A[%d]\n", max_threadID, finalMax, finalMax_index);
+	fprintf(foutp, "Hi I am Pthread %u and I found the maximum value %d in position A[%d]\n", max_threadID, finalMax, finalMax_index);
+
     //printf("Time of execution to check %d items with %d threads: %f usec\n", size, numWorkers, runTime); 
 
 	fclose(foutp);
