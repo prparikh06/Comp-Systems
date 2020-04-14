@@ -3,4 +3,4 @@ To run this program, use one of the files located in input as argv[1] or create 
 <Child 1> <#of children> <list of children>
 <...> subsequent children / grand children
 
-Note: The name of each process must be one character long. To avoid overloading the resources, ulimit was set to 50 processes while testing.
+Note: The name of each process must be one character long. To avoid overloading the resources, ulimit was set to 25 processes while testing.
