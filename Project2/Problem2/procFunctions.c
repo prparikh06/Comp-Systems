@@ -66,12 +66,15 @@ tree_node* createTree(char* proc){//creates the tree struct
 	return ptr;
 }
 
+
 tree_node* read_tree_file(const char *filename){
 	FILE *fp = fopen(filename, "r");
 	char proc[256];
 	char root = '\0';
+	char name;
 	tree_node *ptr = (tree_node*)malloc(sizeof(tree_node));
-
+	int i = 0;
+	int j = 0;
 	while(fgets(proc,sizeof(proc),fp)){
 		
 		if(root == '\0'){
@@ -81,14 +84,14 @@ tree_node* read_tree_file(const char *filename){
 		else{
 		  int x = 0;
 		  while(ptr->children[x] != NULL){
-		    char name = ptr->children[x]->name;
+		    name = ptr->children[x]->name;
 		    if(name ==proc[0]){
 			ptr->children[x] = createTree(proc);
 			break;
 		    }
 		    x++;
 		  }
-	 	}
+	       }
 	  }
 
 	return ptr;
