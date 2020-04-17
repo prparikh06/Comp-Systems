@@ -12,6 +12,17 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 int keys_found = 0; 
 
 
+int get_size(char* file){
+
+	FILE* fp = fopen(file,"r");
+	int n, count = 0;
+	while (fscanf(fp, "%d",&n) != EOF) {
+		count++;
+	}
+  	fclose(fp);
+	return count;
+}
+
 
 /*
     data to be returned:
@@ -22,8 +33,8 @@ void* thread_search(void* args){
 
    if (keys_found == 3){
 		  //printf("exiting...\n");
-        pthread_exit(NULL);
-        
+		free(args);
+        pthread_exit(NULL); 
     }
 
     //lock protect keys_found
@@ -49,10 +60,28 @@ void* thread_search(void* args){
 
     }
 
+	free(args);
     pthread_mutex_unlock(&mutex);
     return (void*) return_vals;
 }
 
+
+
+int main(int argc, char* argv[]){ 
+    struct timeval start,end; 
+    int i,k,n,numWorkers;
+    char* file = "1m_items.txt"; //TODO this will change
+	
+	FILE* foutp = fopen("output.txt", "w+");
+    
+    FILE* fp = fopen(file, "r"); 
+    if (fp == NULL) {
+		printf("Could not open file.\n");   
+    	return -1;
+	}  
+    size = get_size(file);
+
+       
 /*
     DEFAULT PIECE SIZE WILL VARY DEPENDING ON SIZE OF INPUT/TEXT FILE
     piece_size = 200 if 1m
@@ -61,22 +90,15 @@ void* thread_search(void* args){
     piece_size = 10 if 1k
 
 */
+    if (size == 1000000) piece_size = 10000;
+    else if (size == 100000) piece_size = 1000;
+    else if (size == 10000) piece_size = 100;
+    else piece_size = 10;
 
-int main(int argc, char* argv[]){ 
-struct timeval start,end; 
-    //size = 1000000, piece_size =  200; //TODO THIS WILL CHANGE
-    size = atoi(argv[2]), piece_size = 200;
-    FILE *fp = fopen(argv[3],"r");
     
-    int numWorkers, i,k,n; 
-    //FILE* fp = fopen("1m_items.txt", "r"); //TODO this will change
-    if (fp == NULL) {
-		printf("Could not open file.\n");   
-    	return -1;
-	}
-    if (argc > 1){
+    if (argc > 1){ 
+
         numWorkers = atoi(argv[1]);
-        
         piece_size = ceil((double)size/numWorkers); 
         
     }
@@ -85,7 +107,7 @@ struct timeval start,end;
         numWorkers = size/piece_size; 
         
     }
-    
+
     threads = (pthread_t*) malloc(sizeof(pthread_t)*numWorkers);
 
     //create array
@@ -98,12 +120,13 @@ struct timeval start,end;
     //start timing
     gettimeofday(&start,NULL);
     
-    for (k= 0, i = 0; k < numWorkers; i+=piece_size, k++){
+    for (i = 0, k = 0; k < numWorkers; i+=piece_size, k++){
         pthread_t curr_thread;
         int* args = malloc(sizeof(int)*2);
         args[0] = i; args[1] = i+piece_size;
         pthread_create(&curr_thread, NULL, thread_search, (void*) args);
-	printf("Created thread %u\n", curr_thread);
+		printf("Created thread %u\n", curr_thread);
+		fprintf(foutp, "Created thread %u\n", curr_thread);
         threads[k] = curr_thread;
     }
 
@@ -112,42 +135,52 @@ struct timeval start,end;
     for (i = 0; i < numWorkers; i++){
         
         //join and get return val     
-        int* ret = malloc(sizeof(int) * 3); //ret vals for the indices of the hidden key (if any) 
+        int* ret; //ret vals for the indices of the hidden key (if any) 
+        pthread_join(threads[i], &ret);
         
-        pthread_join(threads[i], (void*)&ret);
-        
-	if (ret == NULL)
-		continue;
+		if (ret == NULL)
+		{
+			continue;
+		}
+		
         if(ret[0] != -1){ //hidden key found
-            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], ret[0]); 
+            printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], ret[0]);
+			fprintf(foutp, "Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], ret[0]);			
             found++;
         }
         if(ret[1] != -1){ //another key found
             printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], ret[1]); 
+			fprintf(foutp, "Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], ret[1]);
             found++;   
         }
         
         if(ret[2] != -1){
             printf("Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], ret[2]); 
+			fprintf(foutp, "Hi I am Pthread %u and I found the hidden key in position A[%d]\n", threads[i], ret[2]);
             found++;
             
         }
 
         if(found == 3){
         	//printf("all three found\n");
+			free(ret);
             break;
         }
        
+	   free(ret);
     }
 
+	free(array);
+	free(threads);
+	
     fclose(fp);
 
     //end timing
     gettimeofday(&end,NULL);
     float runTime = (float) end.tv_usec - start.tv_usec + 1000000*(end.tv_sec - start.tv_sec);
-    //printf("Time of execution to check %s items with %d threads: %f usec\n", argv[2], numWorkers, runTime); //TODO this will change
+    //printf("Time of execution to check %d items with %d threads: %f usec\n", size, numWorkers, runTime); 
 
-    
+    fclose(foutp);
 
 }
 
