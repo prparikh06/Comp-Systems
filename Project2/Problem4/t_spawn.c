@@ -140,22 +140,22 @@ sigprocmask(SIG_SETMASK, &mask, NULL);
 sleep(2);
 
 
-//send sigKILL
-//s = pthread_kill(tid[0],SIGINT);
-//if(s != 0)
-//	handle_error_en(s,"Error Trying to send signal to SIGINT\n");
-
-//send SIGSTOP
-//s = pthread_kill(tid[1],SIGSTOP);
-//if(s != 0)
-//	handle_error_en(s,"Error Trying to send signal to SIGSTOP\n");
-
-printf("TID SIGILL: %li; tid[2] pointer: %li\n",tidILL,(long)tid[2]);
+//printf("TID SIGILL: %li; tid[2] pointer: %li\n",tidILL,(long)tid[2]);
 
 //send SIGILL
-s = pthread_kill(tid[2],SIGILL);
+s = raise(SIGILL);
 if(s != 0)
 	handle_error_en(s,"Error Trying to send signal to SIGILL\n");
+
+//send sigINT
+s = raise(SIGINT);
+if(s != 0)
+	handle_error_en(s,"Error Trying to send signal to SIGINT\n");
+
+//send SIGSTOP
+s = raise(SIGSTOP);
+if(s != 0)
+	handle_error_en(s,"Error Trying to send signal to SIGSTOP\n");
 
 
 
