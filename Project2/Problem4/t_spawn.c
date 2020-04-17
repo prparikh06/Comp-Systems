@@ -6,36 +6,39 @@
 
 #define handle_error_en(en,msg) \
 	do {errno = en; perror(msg); exit(EXIT_FAILURE); } while(0)
-int tidINT=0, tidSTOP=0, tidILL=0;
+long tidINT=0, tidSTOP=0, tidILL=0;
 
 static void sig_int(){
-	printf("TID: %d handled this SIGINT!\n",tidINT);
+	printf("Signal: 2 handled by TID: %li SIGINT!\n",tidINT);
 }
 
 static void sig_stop(){
-	printf("TID: %d handled this SIGSTOP!\n",tidSTOP);
+	printf("Signal: 19 handled by TID: %li SIGSTOP!\n",tidSTOP);
+	
 }
 
 
 static void sig_ill(){
-	printf("TID: %d handled this SIGILL!! \n",tidILL);
+	printf("Signal: 4 handled by TID: %li SIGILL \n",tidILL);
 }
 
 
 //thread function created to handle its SIGINT
 void handle_sigINT() {
-int sum,i;
+long i;
+long long int sum;
+
 pthread_t myID = pthread_self();
 
-tidINT = (int)myID;
+tidINT = (long)myID;
 
 
 signal(SIGINT, sig_int);
 
-	for(i = 0 ; i<(int)myID ; i++){
+	for(i = 0 ; i<(long)myID*1000 ; i++){
 		sum = sum+i;
 	}
-printf("TID: %d, who handled SIGINT, finished its loop. Sum of 1 to %d is: %d \n",(int)myID, (int)myID, sum);
+printf("TID: %li, who handled SIGINT, finished its loop. Sum of 1 to %li is: %lli \n",(long)myID, (long)myID, sum);
 
 }
 
@@ -44,30 +47,32 @@ printf("TID: %d, who handled SIGINT, finished its loop. Sum of 1 to %d is: %d \n
 void handle_sigSTOP() {
 
 pthread_t myID = pthread_self();
-tidSTOP = (int)myID;
+tidSTOP = (long)myID;
 signal(SIGSTOP, sig_stop);
 	
-int i, sum;
+long i;
+long long int sum;
 
-	for(i = 0 ; i<(int)myID ; i++){
+	for(i = 0 ; i<(long)myID*1000 ; i++){
 		sum = sum+i;
 	}
 	
-	printf("TID: %d, who handled SIGSTOP, finished its loop. Sum of 1 to %d is: %d \n",(int)myID, (int)myID, sum);
+	printf("TID: %li, who handled SIGSTOP, finished its loop. Sum of 1 to %li is: %lli \n",(long)myID, (long)myID, sum);
 
 }
 
 //thread created to count and handle its SIGILL
 void handle_sigILL() {
-int sum,i;
+long i;
+long long int sum;
 pthread_t myID = pthread_self();
-tidILL = (int)myID;
-signal(SIGILL, sig_int);
+tidILL = (long)myID;
+signal(SIGILL, sig_ill);
 
-	for(i = 0 ; i<(int)myID ; i++){
+	for(i = 0 ; i<(long)myID*1000 ; i++){
 		sum = sum+i;
 	}
-printf("TID: %d, who handled SIGILL, finished its loop. Sum of 1 to %d is: %d \n",(int)myID, (int)myID, sum);
+printf("TID: %li, who handled SIGILL, finished its loop. Sum of 1 to %li is: %lli \n",(long)myID, (long)myID, sum);
 
 
 }
@@ -132,16 +137,22 @@ sigemptyset(&mask);
 sigprocmask(SIG_SETMASK, &mask, NULL);
 
 
-sleep(1);
+sleep(2);
 
+
+//send sigKILL
 //s = pthread_kill(tid[0],SIGINT);
 //if(s != 0)
 //	handle_error_en(s,"Error Trying to send signal to SIGINT\n");
 
+//send SIGSTOP
 //s = pthread_kill(tid[1],SIGSTOP);
 //if(s != 0)
 //	handle_error_en(s,"Error Trying to send signal to SIGSTOP\n");
 
+printf("TID SIGILL: %li; tid[2] pointer: %li\n",tidILL,(long)tid[2]);
+
+//send SIGILL
 s = pthread_kill(tid[2],SIGILL);
 if(s != 0)
 	handle_error_en(s,"Error Trying to send signal to SIGILL\n");
