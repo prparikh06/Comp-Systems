@@ -4,11 +4,11 @@
 #include <unistd.h>
 
 pthread_mutex_t c_lock, b_lock;
-pthread_cond_t c_ready = PTHREAD_COND_INITIALIZER, b_ready = PTHREAD_COND_INITIALIZER;
+pthread_cond_t c_avail, b_avail;
 int espresso_count = 0;
 int c_ticket = 0;
 
-int numBaristas;
+int numCustomers, numBaristas;
 
 void * customer(void * args)
 {
@@ -17,62 +17,73 @@ void * customer(void * args)
 	int ticket = c_ticket;
 	pthread_mutex_unlock(&c_lock);
 	
-	pthread_cond_broadcast(&c_ready);
+	pthread_cond_broadcast(&c_avail);
 	
 	pthread_mutex_lock(&b_lock);
 	while (ticket > espresso_count)
 	{
-		pthread_cond_wait(&b_ready, &b_lock);
+		pthread_cond_wait(&b_avail, &b_lock);
 	}
-	pthread_mutex_unlock(&b_lock);
-	
 	printf("I am customer placing ticket %i.\n", ticket);
+	pthread_mutex_unlock(&b_lock);
 }
 
 void * barista(void * args)
 {
-	while (1)
+	int *bnum = (int*)args;
+	
+	pthread_mutex_lock(&b_lock);
+	int cond = (espresso_count < numCustomers);
+	pthread_mutex_unlock(&b_lock);
+	while (cond)
 	{
 		pthread_mutex_lock(&b_lock);
 		espresso_count++;
 		int ticket = espresso_count;
 		pthread_mutex_unlock(&b_lock);
 		
-		sleep(1);
-		pthread_cond_broadcast(&b_ready);
+		pthread_cond_broadcast(&b_avail);
 		
 		pthread_mutex_lock(&c_lock);
 		while (c_ticket < ticket)
 		{
-			pthread_cond_wait(&c_ready, &c_lock);
+			pthread_cond_wait(&c_avail, &c_lock);
 		}
+		printf("I am barista %i serving ticket %i.\n", *bnum, ticket);
 		pthread_mutex_unlock(&c_lock);
 		
-		printf("I am barista serving ticket %i.\n", ticket);
+		pthread_mutex_lock(&b_lock);
+		cond = (espresso_count < numCustomers);
+		pthread_mutex_unlock(&b_lock);
 	}
+	free(bnum);
 }
 
 int main(int argc, char **argv)
 {
 	numBaristas = atoi(argv[1]);
-	int numCustomers = atoi(argv[2]);
+	numCustomers = atoi(argv[2]);
 	
 	pthread_t bid[numBaristas];
 	pthread_t cid[numCustomers];
 	
-	if (pthread_mutex_init(&c_lock, NULL) != 0) { 
-        printf("\n mutex init has failed\n"); 
+	if (pthread_mutex_init(&c_lock, NULL) != 0) 
+	{ 
+        printf("Failed to init mutex\n"); 
         return 1; 
     } 
-	if (pthread_mutex_init(&b_lock, NULL) != 0) { 
-        printf("\n mutex init has failed\n"); 
+	if (pthread_mutex_init(&b_lock, NULL) != 0) 
+	{ 
+        printf("Failed to init mutex\n"); 
         return 1; 
     } 
 
 	int i;
 	for (int i = 0; i < numBaristas; i++)
 	{
-		pthread_create(&bid[i], NULL, barista, NULL);
+		int *bnum = malloc(sizeof(int));
+		*bnum = i;
+		pthread_create(&bid[i], NULL, barista, (void *) bnum);
 	}
 	
 	for (int i = 0; i < numCustomers; i++)
@@ -80,7 +91,7 @@ int main(int argc, char **argv)
 		pthread_create(&cid[i], NULL, customer, NULL);
 	}
 	
-	// this will never happen unless we figure out a better loop condition for the barristas
+
 	for (int i = 0; i < numBaristas; i++)
 	{
 		pthread_join(bid[i], NULL);
